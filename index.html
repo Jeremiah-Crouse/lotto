@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praxis PINN: Vortex Monitor</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Courier New', monospace; background: #0d1117; color: #58a6ff; padding: 20px; }
+        .container { max-width: 900px; margin: auto; border: 1px solid #30363d; padding: 20px; border-radius: 8px; background: #161b22; }
+        h1 { color: #f0f6fc; border-bottom: 1px solid #30363d; padding-bottom: 10px; }
+        .status-box { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .stat { background: #0d1117; padding: 15px; border-radius: 5px; border: 1px solid #30363d; flex: 1; margin: 0 5px; text-align: center; }
+        .stat-val { display: block; font-size: 24px; color: #79c0ff; font-weight: bold; }
+        .log { height: 200px; overflow-y: scroll; background: #000; color: #39ff14; padding: 10px; font-size: 12px; margin-top: 20px; border: 1px solid #30363d; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>PRAXIS // NEURAL VORTEX MONITOR</h1>
+    
+    <div class="status-box">
+        <div class="stat">Target Draw <span id="targetDraw" class="stat-val">--</span></div>
+        <div class="stat">Current Resonance <span id="resonance" class="stat-val">0/5</span></div>
+        <div class="stat">Vortex Loss <span id="loss" class="stat-val">0.0000</span></div>
+    </div>
+
+    <canvas id="learningChart" width="800" height="300"></canvas>
+
+    <h3>SYSTEM LOG</h3>
+    <div class="log" id="syslog">Initialising handshake with VM...<br></div>
+</div>
+
+<script>
+    async function updateDashboard() {
+        try {
+            // Fetch the data.json pushed by your VM
+            const response = await fetch('data.json?t=' + new Date().getTime());
+            const data = await response.json();
+
+            // Update UI
+            document.getElementById('targetDraw').innerText = data.target_draw;
+            document.getElementById('resonance').innerText = data.matches + "/5";
+            document.getElementById('loss').innerText = data.loss.toFixed(6);
+
+            const log = document.getElementById('syslog');
+            log.innerHTML += `[${new Date().toLocaleTimeString()}] Epoch ${data.epoch}: Resonance ${data.matches}/5 detected.<br>`;
+            log.scrollTop = log.scrollHeight;
+
+            // Update Chart (Assuming data.history is an array of loss values)
+            myChart.data.labels.push(data.epoch);
+            myChart.data.datasets[0].data.push(data.loss);
+            myChart.update();
+
+        } catch (e) {
+            console.log("Waiting for VM data...");
+        }
+    }
+
+    const ctx = document.getElementById('learningChart').getContext('2d');
+    const myChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: [], datasets: [{ label: 'Vortex Loss', data: [], borderColor: '#79c0ff', tension: 0.1 }] },
+        options: { scales: { y: { beginAtZero: false, grid: { color: '#30363d' } }, x: { grid: { color: '#30363d' } } } }
+    });
+
+    setInterval(updateDashboard, 5000); // Check for new data every 5 seconds
+</script>
+</body>
+</html>
