@@ -3,23 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Praxis Oracle | Live Backtest</title>
+    <title>Praxis Oracle | Grand Truth</title>
     <style>
         body { font-family: 'Courier New', Courier, monospace; background: #0a0a0a; color: #00ff41; padding: 20px; }
         .container { max-width: 600px; margin: auto; }
         .card { border: 1px solid #00ff41; padding: 15px; margin-bottom: 10px; background: #111; }
-        .hit-high { color: #fff; background: #005500; font-weight: bold; }
-        h1 { font-size: 1.2rem; text-align: center; border-bottom: 2px solid #00ff41; padding-bottom: 10px; }
+        .hit-high { color: #fff; background: #004400; border: 1px solid #00ff41; box-shadow: 0 0 10px #00ff41; }
+        h1 { font-size: 1.2rem; text-align: center; border-bottom: 2px solid #00ff41; padding-bottom: 10px; text-shadow: 0 0 5px #00ff41; }
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .metric { font-size: 0.8rem; text-transform: uppercase; opacity: 0.8; }
-        .value { font-size: 1.2rem; display: block; }
+        .metric { font-size: 0.7rem; text-transform: uppercase; opacity: 0.7; display: block; }
+        .value { font-size: 1.4rem; font-weight: bold; color: #fff; }
+        .ball { display: inline-block; width: 25px; text-align: center; border-right: 1px solid #333; margin-right: 5px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>PRAXIS PROGRESSIVE BACKTEST</h1>
+        <h1>PRAXIS GRAND TRUTH ENGINE</h1>
         <div id="stats" class="stat-grid"></div>
-        <div id="log">Waiting for Vortex Sync...</div>
+        <div id="log">Synchronizing with PINN...</div>
     </div>
 
     <script>
@@ -28,26 +29,26 @@
                 const res = await fetch('results.json?t=' + Date.now());
                 const data = await res.json();
                 
-                // Calculate current hit rate
-                const totalHits = data.reduce((acc, curr) => acc + curr.matches, 0);
-                const avg = (totalHits / data.length).toFixed(2);
+                const avg = (data.grand_total_matches / data.grand_total_draws).toFixed(3);
 
                 document.getElementById('stats').innerHTML = `
-                    <div class="card"><span class="metric">Avg Hits</span><span class="value">${avg}</span></div>
-                    <div class="card"><span class="metric">Window</span><span class="value">${data.length} Draws</span></div>
+                    <div class="card"><span class="metric">Grand Avg Hits</span><span class="value">${avg}</span></div>
+                    <div class="card"><span class="metric">Total Processed</span><span class="value">${data.grand_total_draws}</span></div>
                 `;
 
-                const logHtml = data.reverse().map(event => `
+                const logHtml = data.recent_history.slice().reverse().map(event => `
                     <div class="card ${event.matches >= 2 ? 'hit-high' : ''}">
-                        <div style="font-size: 0.7rem; opacity: 0.7;">${event.draw_date}</div>
-                        <div>SET: ${event.sovereign_seven.join(' . ')}</div>
-                        <div style="text-align: right;">MATCHES: ${event.matches}</div>
+                        <div style="font-size: 0.7rem; opacity: 0.7; margin-bottom: 5px;">${event.draw_date}</div>
+                        <div style="letter-spacing: 2px;">
+                            ${event.sovereign_seven.map(n => `<span class="ball">${n}</span>`).join('')}
+                        </div>
+                        <div style="text-align: right; margin-top: 5px; font-weight: bold;">MATCHES: ${event.matches}</div>
                     </div>
                 `).join('');
                 document.getElementById('log').innerHTML = logHtml;
-            } catch (e) { console.error("Sync failed"); }
+            } catch (e) { console.error("Vortex Sync Failure"); }
         }
-        setInterval(updateDashboard, 5000);
+        setInterval(updateDashboard, 15000); // 15s refresh to save phone battery
         updateDashboard();
     </script>
 </body>
