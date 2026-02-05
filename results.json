@@ -1,106 +1,15 @@
 [
   {
     "draw_date": "10/11/2019",
-    "matches": 1,
+    "matches": 0,
     "sovereign_seven": [
       8,
       11,
-      14,
       17,
       24,
       31,
-      48
-    ]
-  },
-  {
-    "draw_date": "10/15/2019",
-    "matches": 0,
-    "sovereign_seven": [
-      11,
-      17,
-      24,
-      40,
-      48,
-      63,
-      68
-    ]
-  },
-  {
-    "draw_date": "10/18/2019",
-    "matches": 0,
-    "sovereign_seven": [
-      11,
-      12,
-      14,
-      17,
-      34,
-      48,
-      68
-    ]
-  },
-  {
-    "draw_date": "10/22/2019",
-    "matches": 2,
-    "sovereign_seven": [
-      8,
-      11,
-      14,
-      16,
-      24,
-      48,
-      62
-    ]
-  },
-  {
-    "draw_date": "10/25/2019",
-    "matches": 1,
-    "sovereign_seven": [
-      8,
-      11,
-      12,
-      14,
-      16,
       48,
       63
-    ]
-  },
-  {
-    "draw_date": "10/29/2019",
-    "matches": 0,
-    "sovereign_seven": [
-      8,
-      11,
-      12,
-      14,
-      24,
-      48,
-      63
-    ]
-  },
-  {
-    "draw_date": "11/1/2019",
-    "matches": 0,
-    "sovereign_seven": [
-      11,
-      12,
-      14,
-      17,
-      24,
-      48,
-      63
-    ]
-  },
-  {
-    "draw_date": "11/5/2019",
-    "matches": 1,
-    "sovereign_seven": [
-      8,
-      11,
-      14,
-      17,
-      24,
-      25,
-      48
     ]
   }
 ]
