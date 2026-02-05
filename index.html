@@ -3,69 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Praxis PINN: Vortex Monitor</title>
+    <title>Praxis // Neural Vortex Monitor</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Courier New', monospace; background: #0d1117; color: #58a6ff; padding: 20px; }
-        .container { max-width: 900px; margin: auto; border: 1px solid #30363d; padding: 20px; border-radius: 8px; background: #161b22; }
-        h1 { color: #f0f6fc; border-bottom: 1px solid #30363d; padding-bottom: 10px; }
-        .status-box { display: flex; justify-content: space-between; margin-bottom: 20px; }
-        .stat { background: #0d1117; padding: 15px; border-radius: 5px; border: 1px solid #30363d; flex: 1; margin: 0 5px; text-align: center; }
+        body { font-family: 'Courier New', monospace; background: #0d1117; color: #58a6ff; padding: 20px; transition: background 0.5s; }
+        .container { max-width: 900px; margin: auto; border: 1px solid #30363d; padding: 20px; border-radius: 8px; background: #161b22; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h1 { color: #f0f6fc; border-bottom: 1px solid #30363d; padding-bottom: 10px; margin-top: 0; letter-spacing: 2px; }
+        .status-box { display: flex; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; }
+        .stat { background: #0d1117; padding: 15px; border-radius: 5px; border: 1px solid #30363d; flex: 1; min-width: 150px; margin: 5px; text-align: center; }
         .stat-val { display: block; font-size: 24px; color: #79c0ff; font-weight: bold; }
-        .log { height: 200px; overflow-y: scroll; background: #000; color: #39ff14; padding: 10px; font-size: 12px; margin-top: 20px; border: 1px solid #30363d; }
+        .log { height: 200px; overflow-y: scroll; background: #000; color: #39ff14; padding: 10px; font-size: 11px; margin-top: 20px; border: 1px solid #30363d; border-radius: 4px; line-height: 1.4; }
+        
+        .alert-active { background: #4e0000 !important; border: 2px solid #f85149 !important; }
+        .alert-active h1 { color: #ff7b72; }
+
+        #sovereign-set { font-size: 1.8em; color: #aff5b4; margin: 15px 0; font-weight: bold; letter-spacing: 4px; text-shadow: 0 0 10px rgba(175, 245, 180, 0.3); }
+        .footer { margin-top: 20px; font-size: 10px; color: #8b949e; display: flex; justify-content: space-between; border-top: 1px solid #30363d; padding-top: 10px; }
+        #sync-status { color: #39ff14; font-weight: bold; }
+        .clear-btn { background: #30363d; color: #8b949e; border: none; padding: 5px 10px; cursor: pointer; border-radius: 3px; font-size: 10px; }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="container" id="mainContainer">
     <h1>PRAXIS // NEURAL VORTEX MONITOR</h1>
     
     <div class="status-box">
         <div class="stat">Target Draw <span id="targetDraw" class="stat-val">--</span></div>
-        <div class="stat">Current Resonance <span id="resonance" class="stat-val">0/5</span></div>
+        <div class="stat">Resonance <span id="resonance" class="stat-val">0/5</span></div>
+        <div class="stat">Stability <span id="stability" class="stat-val">0/7</span></div>
         <div class="stat">Vortex Loss <span id="loss" class="stat-val">0.0000</span></div>
     </div>
 
-    <canvas id="learningChart" width="800" height="300"></canvas>
+    <div style="text-align: center; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 5px; border: 1px dashed #30363d;">
+        <span style="font-size: 10px; color: #8b949e; text-transform: uppercase; letter-spacing: 1px;">Current Sovereign Seven</span>
+        <div id="sovereign-set">AWAITING PULSE...</div>
+    </div>
 
-    <h3>SYSTEM LOG</h3>
-    <div class="log" id="syslog">Initialising handshake with VM...<br></div>
+    <div style="height: 250px; margin-top: 20px;">
+        <canvas id="learningChart"></canvas>
+    </div>
+
+    <div class="log" id="syslog">Initialising handshake with Praxis VM...<br></div>
+
+    <div class="footer">
+        <div>ORACLE STATUS: <span id="sync-status">INITIALIZING</span> <button class="clear-btn" onclick="clearHistory()">RESET CACHE</button></div>
+        <div>LAST VM HEARTBEAT: <span id="lastUpdate">--:--:--</span></div>
+    </div>
 </div>
 
 <script>
+    // TRACKING VARIABLE - This is the gatekeeper
+    let currentSessionLastEpoch = -1;
+
+    // Load long-term history from storage
+    let logHistory = JSON.parse(localStorage.getItem('vortex_log')) || [];
+    let chartLabels = JSON.parse(localStorage.getItem('vortex_labels')) || [];
+    let chartValues = JSON.parse(localStorage.getItem('vortex_values')) || [];
+    
+    // Seed the gatekeeper with whatever the last saved epoch was
+    currentSessionLastEpoch = parseInt(localStorage.getItem('last_epoch')) || -1;
+
+    const logContainer = document.getElementById('syslog');
+    if (logHistory.length > 0) {
+        logContainer.innerHTML = logHistory.join("");
+        logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
     async function updateDashboard() {
         try {
-            // Fetch the data.json pushed by your VM
             const response = await fetch('data.json?t=' + new Date().getTime());
             const data = await response.json();
 
-            // Update UI
+            // 1. ALWAYS update the top cards (The "Live" state)
             document.getElementById('targetDraw').innerText = data.target_draw;
             document.getElementById('resonance').innerText = data.matches + "/5";
             document.getElementById('loss').innerText = data.loss.toFixed(6);
+            document.getElementById('stability').innerText = data.stability;
+            document.getElementById('sovereign-set').innerText = data.predicted_7.join(" . ");
+            document.getElementById('lastUpdate').innerText = new Date().toLocaleTimeString();
+            document.getElementById('sync-status').innerText = "SYNCHRONIZED";
+            document.getElementById('sync-status').style.color = "#39ff14";
 
-            const log = document.getElementById('syslog');
-            log.innerHTML += `[${new Date().toLocaleTimeString()}] Epoch ${data.epoch}: Resonance ${data.matches}/5 detected.<br>`;
-            log.scrollTop = log.scrollHeight;
+            // 2. STABILITY ALERT
+            const container = document.getElementById('mainContainer');
+            if (data.stability === "7/7") {
+                container.classList.add('alert-active');
+            } else {
+                container.classList.remove('alert-active');
+            }
 
-            // Update Chart (Assuming data.history is an array of loss values)
+            // 3. THE LOG GATEKEEPER
+            // If the epoch from the file is NOT greater than what we've already handled, STOP.
+            if (data.epoch <= currentSessionLastEpoch) {
+                return; 
+            }
+
+            // If we are here, it's a NEW epoch.
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] Epoch ${data.epoch}: Resonance ${data.matches}/5 | Stab ${data.stability}<br>`;
+            
+            // Add to UI
+            logContainer.innerHTML += logEntry;
+            logContainer.scrollTop = logContainer.scrollHeight;
+
+            // Update Chart
             myChart.data.labels.push(data.epoch);
             myChart.data.datasets[0].data.push(data.loss);
+            if (myChart.data.labels.length > 100) { 
+                myChart.data.labels.shift(); 
+                myChart.data.datasets[0].data.shift(); 
+            }
             myChart.update();
 
+            // SAVE TO BROWSER STORAGE
+            logHistory.push(logEntry);
+            chartLabels.push(data.epoch);
+            chartValues.push(data.loss);
+            
+            if(logHistory.length > 150) logHistory.shift();
+            if(chartLabels.length > 150) { chartLabels.shift(); chartValues.shift(); }
+
+            localStorage.setItem('vortex_log', JSON.stringify(logHistory));
+            localStorage.setItem('vortex_labels', JSON.stringify(chartLabels));
+            localStorage.setItem('vortex_values', JSON.stringify(chartValues));
+            localStorage.setItem('last_epoch', data.epoch);
+
+            // Update local tracker
+            currentSessionLastEpoch = data.epoch;
+
         } catch (e) {
-            console.log("Waiting for VM data...");
+            document.getElementById('sync-status').innerText = "WAITING...";
+            document.getElementById('sync-status').style.color = "#f85149";
+        }
+    }
+
+    function clearHistory() {
+        if(confirm("Clear log history?")) {
+            localStorage.clear();
+            location.reload();
         }
     }
 
     const ctx = document.getElementById('learningChart').getContext('2d');
     const myChart = new Chart(ctx, {
         type: 'line',
-        data: { labels: [], datasets: [{ label: 'Vortex Loss', data: [], borderColor: '#79c0ff', tension: 0.1 }] },
-        options: { scales: { y: { beginAtZero: false, grid: { color: '#30363d' } }, x: { grid: { color: '#30363d' } } } }
+        data: { 
+            labels: chartLabels, 
+            datasets: [{ 
+                label: 'Loss', 
+                data: chartValues, 
+                borderColor: '#79c0ff', 
+                backgroundColor: 'rgba(121, 192, 255, 0.1)', 
+                tension: 0.3, 
+                fill: true, 
+                pointRadius: 2 
+            }] 
+        },
+        options: { responsive: true, maintainAspectRatio: false, animation: false, plugins: { legend: { display: false } },
+            scales: { y: { grid: { color: '#30363d' }, ticks: { color: '#8b949e', font: { size: 10 } } }, x: { grid: { color: '#30363d' }, ticks: { color: '#8b949e', font: { size: 10 } } } } }
     });
 
-    setInterval(updateDashboard, 5000); // Check for new data every 5 seconds
+    setInterval(updateDashboard, 5000); 
+    updateDashboard();
 </script>
 </body>
 </html>
