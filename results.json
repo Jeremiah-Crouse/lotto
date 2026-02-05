@@ -1,85 +1,7 @@
 {
-  "grand_total_matches": 146,
-  "grand_total_draws": 285,
+  "grand_total_matches": 149,
+  "grand_total_draws": 291,
   "recent_history": [
-    {
-      "draw_date": "1/11/2022",
-      "matches": 1,
-      "sovereign_seven": [
-        10,
-        15,
-        18,
-        19,
-        20,
-        44,
-        50
-      ]
-    },
-    {
-      "draw_date": "1/14/2022",
-      "matches": 1,
-      "sovereign_seven": [
-        8,
-        17,
-        26,
-        28,
-        32,
-        61,
-        68
-      ]
-    },
-    {
-      "draw_date": "1/18/2022",
-      "matches": 0,
-      "sovereign_seven": [
-        14,
-        25,
-        26,
-        41,
-        46,
-        57,
-        65
-      ]
-    },
-    {
-      "draw_date": "1/21/2022",
-      "matches": 2,
-      "sovereign_seven": [
-        9,
-        18,
-        38,
-        48,
-        50,
-        53,
-        55
-      ]
-    },
-    {
-      "draw_date": "1/25/2022",
-      "matches": 1,
-      "sovereign_seven": [
-        6,
-        17,
-        34,
-        37,
-        44,
-        58,
-        59
-      ]
-    },
-    {
-      "draw_date": "1/28/2022",
-      "matches": 3,
-      "sovereign_seven": [
-        3,
-        10,
-        15,
-        24,
-        25,
-        27,
-        55
-      ]
-    },
     {
       "draw_date": "2/1/2022",
       "matches": 1,
@@ -650,6 +572,84 @@
         27,
         45,
         62
+      ]
+    },
+    {
+      "draw_date": "7/5/2022",
+      "matches": 0,
+      "sovereign_seven": [
+        4,
+        14,
+        47,
+        56,
+        57,
+        63,
+        64
+      ]
+    },
+    {
+      "draw_date": "7/8/2022",
+      "matches": 0,
+      "sovereign_seven": [
+        17,
+        18,
+        26,
+        32,
+        38,
+        52,
+        57
+      ]
+    },
+    {
+      "draw_date": "7/12/2022",
+      "matches": 0,
+      "sovereign_seven": [
+        17,
+        18,
+        32,
+        38,
+        48,
+        53,
+        62
+      ]
+    },
+    {
+      "draw_date": "7/15/2022",
+      "matches": 1,
+      "sovereign_seven": [
+        14,
+        19,
+        26,
+        39,
+        40,
+        42,
+        61
+      ]
+    },
+    {
+      "draw_date": "7/19/2022",
+      "matches": 0,
+      "sovereign_seven": [
+        4,
+        5,
+        7,
+        34,
+        36,
+        41,
+        63
+      ]
+    },
+    {
+      "draw_date": "7/22/2022",
+      "matches": 2,
+      "sovereign_seven": [
+        14,
+        20,
+        26,
+        39,
+        40,
+        53,
+        65
       ]
     }
   ]
