@@ -1,6 +1,6 @@
 {
-  "grand_total_matches": 0,
-  "grand_total_draws": 1,
+  "grand_total_matches": 8,
+  "grand_total_draws": 14,
   "recent_history": [
     {
       "draw_date": "10/11/2019",
@@ -13,6 +13,175 @@
         39,
         57,
         65
+      ]
+    },
+    {
+      "draw_date": "10/15/2019",
+      "matches": 1,
+      "sovereign_seven": [
+        1,
+        10,
+        13,
+        14,
+        45,
+        47,
+        56
+      ]
+    },
+    {
+      "draw_date": "10/18/2019",
+      "matches": 0,
+      "sovereign_seven": [
+        4,
+        11,
+        20,
+        33,
+        37,
+        52,
+        66
+      ]
+    },
+    {
+      "draw_date": "10/22/2019",
+      "matches": 0,
+      "sovereign_seven": [
+        2,
+        16,
+        24,
+        34,
+        42,
+        62,
+        64
+      ]
+    },
+    {
+      "draw_date": "10/25/2019",
+      "matches": 0,
+      "sovereign_seven": [
+        1,
+        11,
+        32,
+        34,
+        39,
+        44,
+        70
+      ]
+    },
+    {
+      "draw_date": "10/29/2019",
+      "matches": 0,
+      "sovereign_seven": [
+        12,
+        14,
+        24,
+        31,
+        48,
+        62,
+        65
+      ]
+    },
+    {
+      "draw_date": "11/1/2019",
+      "matches": 1,
+      "sovereign_seven": [
+        29,
+        30,
+        48,
+        54,
+        60,
+        62,
+        63
+      ]
+    },
+    {
+      "draw_date": "11/5/2019",
+      "matches": 0,
+      "sovereign_seven": [
+        8,
+        10,
+        22,
+        25,
+        38,
+        43,
+        59
+      ]
+    },
+    {
+      "draw_date": "11/8/2019",
+      "matches": 1,
+      "sovereign_seven": [
+        3,
+        8,
+        15,
+        37,
+        41,
+        48,
+        66
+      ]
+    },
+    {
+      "draw_date": "11/12/2019",
+      "matches": 1,
+      "sovereign_seven": [
+        9,
+        28,
+        30,
+        54,
+        60,
+        62,
+        63
+      ]
+    },
+    {
+      "draw_date": "11/15/2019",
+      "matches": 1,
+      "sovereign_seven": [
+        8,
+        10,
+        23,
+        43,
+        48,
+        59,
+        68
+      ]
+    },
+    {
+      "draw_date": "11/19/2019",
+      "matches": 1,
+      "sovereign_seven": [
+        11,
+        29,
+        44,
+        54,
+        59,
+        60,
+        62
+      ]
+    },
+    {
+      "draw_date": "11/22/2019",
+      "matches": 0,
+      "sovereign_seven": [
+        5,
+        24,
+        31,
+        42,
+        48,
+        62,
+        64
+      ]
+    },
+    {
+      "draw_date": "11/26/2019",
+      "matches": 2,
+      "sovereign_seven": [
+        11,
+        27,
+        29,
+        36,
+        44,
+        54,
+        62
       ]
     }
   ]
