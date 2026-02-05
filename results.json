@@ -1,20 +1,7 @@
 {
-  "grand_total_matches": 48,
-  "grand_total_draws": 96,
+  "grand_total_matches": 50,
+  "grand_total_draws": 97,
   "recent_history": [
-    {
-      "draw_date": "3/20/2020",
-      "matches": 0,
-      "sovereign_seven": [
-        23,
-        27,
-        43,
-        44,
-        49,
-        56,
-        63
-      ]
-    },
     {
       "draw_date": "3/24/2020",
       "matches": 1,
@@ -650,6 +637,19 @@
         28,
         57,
         58
+      ]
+    },
+    {
+      "draw_date": "9/11/2020",
+      "matches": 2,
+      "sovereign_seven": [
+        7,
+        15,
+        26,
+        38,
+        42,
+        47,
+        57
       ]
     }
   ]
