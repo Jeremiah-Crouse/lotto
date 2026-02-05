@@ -1,6 +1,6 @@
 {
-  "grand_total_matches": 0,
-  "grand_total_draws": 1,
+  "grand_total_matches": 3,
+  "grand_total_draws": 4,
   "recent_history": [
     {
       "draw_date": "10/11/2019",
@@ -13,6 +13,45 @@
         48,
         63,
         68
+      ]
+    },
+    {
+      "draw_date": "10/15/2019",
+      "matches": 1,
+      "sovereign_seven": [
+        8,
+        11,
+        14,
+        17,
+        24,
+        48,
+        63
+      ]
+    },
+    {
+      "draw_date": "10/18/2019",
+      "matches": 0,
+      "sovereign_seven": [
+        8,
+        14,
+        17,
+        24,
+        34,
+        37,
+        48
+      ]
+    },
+    {
+      "draw_date": "10/22/2019",
+      "matches": 2,
+      "sovereign_seven": [
+        11,
+        14,
+        24,
+        34,
+        48,
+        59,
+        63
       ]
     }
   ]
