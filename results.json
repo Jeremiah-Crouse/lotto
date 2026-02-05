@@ -1,189 +1,7 @@
 {
-  "grand_total_matches": 62,
-  "grand_total_draws": 120,
+  "grand_total_matches": 70,
+  "grand_total_draws": 134,
   "recent_history": [
-    {
-      "draw_date": "6/12/2020",
-      "matches": 1,
-      "sovereign_seven": [
-        4,
-        25,
-        33,
-        58,
-        60,
-        62,
-        70
-      ]
-    },
-    {
-      "draw_date": "6/16/2020",
-      "matches": 0,
-      "sovereign_seven": [
-        10,
-        12,
-        14,
-        16,
-        31,
-        32,
-        48
-      ]
-    },
-    {
-      "draw_date": "6/19/2020",
-      "matches": 0,
-      "sovereign_seven": [
-        9,
-        25,
-        43,
-        46,
-        48,
-        56,
-        62
-      ]
-    },
-    {
-      "draw_date": "6/23/2020",
-      "matches": 1,
-      "sovereign_seven": [
-        10,
-        12,
-        16,
-        31,
-        39,
-        48,
-        68
-      ]
-    },
-    {
-      "draw_date": "6/26/2020",
-      "matches": 2,
-      "sovereign_seven": [
-        14,
-        20,
-        33,
-        43,
-        48,
-        56,
-        62
-      ]
-    },
-    {
-      "draw_date": "6/30/2020",
-      "matches": 1,
-      "sovereign_seven": [
-        5,
-        15,
-        34,
-        36,
-        37,
-        48,
-        62
-      ]
-    },
-    {
-      "draw_date": "7/3/2020",
-      "matches": 0,
-      "sovereign_seven": [
-        11,
-        13,
-        47,
-        59,
-        65,
-        67,
-        70
-      ]
-    },
-    {
-      "draw_date": "7/7/2020",
-      "matches": 1,
-      "sovereign_seven": [
-        14,
-        17,
-        20,
-        24,
-        34,
-        59,
-        63
-      ]
-    },
-    {
-      "draw_date": "7/10/2020",
-      "matches": 0,
-      "sovereign_seven": [
-        3,
-        9,
-        11,
-        24,
-        25,
-        31,
-        70
-      ]
-    },
-    {
-      "draw_date": "7/14/2020",
-      "matches": 0,
-      "sovereign_seven": [
-        10,
-        12,
-        14,
-        33,
-        39,
-        48,
-        57
-      ]
-    },
-    {
-      "draw_date": "7/17/2020",
-      "matches": 0,
-      "sovereign_seven": [
-        8,
-        10,
-        16,
-        27,
-        32,
-        37,
-        39
-      ]
-    },
-    {
-      "draw_date": "7/21/2020",
-      "matches": 1,
-      "sovereign_seven": [
-        8,
-        17,
-        38,
-        39,
-        43,
-        49,
-        63
-      ]
-    },
-    {
-      "draw_date": "7/24/2020",
-      "matches": 0,
-      "sovereign_seven": [
-        20,
-        25,
-        37,
-        48,
-        60,
-        61,
-        67
-      ]
-    },
-    {
-      "draw_date": "7/28/2020",
-      "matches": 0,
-      "sovereign_seven": [
-        5,
-        10,
-        22,
-        33,
-        42,
-        48,
-        62
-      ]
-    },
     {
       "draw_date": "7/31/2020",
       "matches": 0,
@@ -650,6 +468,188 @@
         36,
         44,
         56
+      ]
+    },
+    {
+      "draw_date": "12/4/2020",
+      "matches": 1,
+      "sovereign_seven": [
+        8,
+        22,
+        29,
+        33,
+        43,
+        44,
+        53
+      ]
+    },
+    {
+      "draw_date": "12/8/2020",
+      "matches": 0,
+      "sovereign_seven": [
+        3,
+        11,
+        17,
+        24,
+        31,
+        38,
+        70
+      ]
+    },
+    {
+      "draw_date": "12/11/2020",
+      "matches": 0,
+      "sovereign_seven": [
+        3,
+        8,
+        9,
+        17,
+        30,
+        47,
+        56
+      ]
+    },
+    {
+      "draw_date": "12/15/2020",
+      "matches": 0,
+      "sovereign_seven": [
+        12,
+        17,
+        33,
+        34,
+        37,
+        55,
+        56
+      ]
+    },
+    {
+      "draw_date": "12/18/2020",
+      "matches": 1,
+      "sovereign_seven": [
+        3,
+        4,
+        11,
+        15,
+        31,
+        43,
+        70
+      ]
+    },
+    {
+      "draw_date": "12/22/2020",
+      "matches": 0,
+      "sovereign_seven": [
+        4,
+        11,
+        27,
+        58,
+        60,
+        64,
+        70
+      ]
+    },
+    {
+      "draw_date": "12/25/2020",
+      "matches": 1,
+      "sovereign_seven": [
+        6,
+        13,
+        14,
+        23,
+        31,
+        40,
+        46
+      ]
+    },
+    {
+      "draw_date": "12/29/2020",
+      "matches": 1,
+      "sovereign_seven": [
+        6,
+        11,
+        17,
+        24,
+        31,
+        38,
+        39
+      ]
+    },
+    {
+      "draw_date": "1/1/2021",
+      "matches": 1,
+      "sovereign_seven": [
+        14,
+        20,
+        24,
+        25,
+        28,
+        59,
+        63
+      ]
+    },
+    {
+      "draw_date": "1/5/2021",
+      "matches": 1,
+      "sovereign_seven": [
+        24,
+        35,
+        41,
+        42,
+        43,
+        49,
+        63
+      ]
+    },
+    {
+      "draw_date": "1/8/2021",
+      "matches": 0,
+      "sovereign_seven": [
+        13,
+        23,
+        41,
+        46,
+        53,
+        54,
+        61
+      ]
+    },
+    {
+      "draw_date": "1/12/2021",
+      "matches": 0,
+      "sovereign_seven": [
+        15,
+        31,
+        43,
+        45,
+        49,
+        63,
+        68
+      ]
+    },
+    {
+      "draw_date": "1/15/2021",
+      "matches": 0,
+      "sovereign_seven": [
+        4,
+        14,
+        25,
+        53,
+        58,
+        60,
+        70
+      ]
+    },
+    {
+      "draw_date": "1/19/2021",
+      "matches": 2,
+      "sovereign_seven": [
+        8,
+        10,
+        12,
+        50,
+        55,
+        56,
+        64
       ]
     }
   ]
