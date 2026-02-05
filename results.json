@@ -1,137 +1,7 @@
 {
-  "grand_total_matches": 149,
-  "grand_total_draws": 291,
+  "grand_total_matches": 153,
+  "grand_total_draws": 301,
   "recent_history": [
-    {
-      "draw_date": "2/1/2022",
-      "matches": 1,
-      "sovereign_seven": [
-        15,
-        26,
-        30,
-        31,
-        38,
-        48,
-        51
-      ]
-    },
-    {
-      "draw_date": "2/4/2022",
-      "matches": 0,
-      "sovereign_seven": [
-        10,
-        19,
-        25,
-        31,
-        39,
-        41,
-        52
-      ]
-    },
-    {
-      "draw_date": "2/8/2022",
-      "matches": 1,
-      "sovereign_seven": [
-        19,
-        34,
-        41,
-        52,
-        61,
-        64,
-        65
-      ]
-    },
-    {
-      "draw_date": "2/11/2022",
-      "matches": 1,
-      "sovereign_seven": [
-        11,
-        17,
-        19,
-        27,
-        53,
-        56,
-        69
-      ]
-    },
-    {
-      "draw_date": "2/15/2022",
-      "matches": 0,
-      "sovereign_seven": [
-        5,
-        7,
-        11,
-        14,
-        24,
-        26,
-        56
-      ]
-    },
-    {
-      "draw_date": "2/18/2022",
-      "matches": 1,
-      "sovereign_seven": [
-        4,
-        11,
-        14,
-        23,
-        29,
-        47,
-        56
-      ]
-    },
-    {
-      "draw_date": "2/22/2022",
-      "matches": 0,
-      "sovereign_seven": [
-        11,
-        24,
-        29,
-        37,
-        47,
-        56,
-        63
-      ]
-    },
-    {
-      "draw_date": "2/25/2022",
-      "matches": 1,
-      "sovereign_seven": [
-        11,
-        24,
-        26,
-        37,
-        56,
-        57,
-        62
-      ]
-    },
-    {
-      "draw_date": "3/1/2022",
-      "matches": 1,
-      "sovereign_seven": [
-        1,
-        19,
-        25,
-        34,
-        39,
-        52,
-        65
-      ]
-    },
-    {
-      "draw_date": "3/4/2022",
-      "matches": 0,
-      "sovereign_seven": [
-        4,
-        6,
-        14,
-        26,
-        40,
-        52,
-        69
-      ]
-    },
     {
       "draw_date": "3/8/2022",
       "matches": 0,
@@ -650,6 +520,136 @@
         40,
         53,
         65
+      ]
+    },
+    {
+      "draw_date": "7/26/2022",
+      "matches": 0,
+      "sovereign_seven": [
+        15,
+        19,
+        20,
+        26,
+        56,
+        61,
+        69
+      ]
+    },
+    {
+      "draw_date": "7/29/2022",
+      "matches": 0,
+      "sovereign_seven": [
+        3,
+        16,
+        24,
+        25,
+        32,
+        40,
+        55
+      ]
+    },
+    {
+      "draw_date": "8/2/2022",
+      "matches": 0,
+      "sovereign_seven": [
+        19,
+        23,
+        26,
+        35,
+        47,
+        52,
+        60
+      ]
+    },
+    {
+      "draw_date": "8/5/2022",
+      "matches": 0,
+      "sovereign_seven": [
+        14,
+        20,
+        26,
+        42,
+        53,
+        60,
+        61
+      ]
+    },
+    {
+      "draw_date": "8/9/2022",
+      "matches": 1,
+      "sovereign_seven": [
+        7,
+        10,
+        19,
+        27,
+        38,
+        50,
+        69
+      ]
+    },
+    {
+      "draw_date": "8/12/2022",
+      "matches": 1,
+      "sovereign_seven": [
+        2,
+        31,
+        39,
+        40,
+        54,
+        58,
+        65
+      ]
+    },
+    {
+      "draw_date": "8/16/2022",
+      "matches": 0,
+      "sovereign_seven": [
+        6,
+        17,
+        27,
+        47,
+        56,
+        62,
+        63
+      ]
+    },
+    {
+      "draw_date": "8/19/2022",
+      "matches": 0,
+      "sovereign_seven": [
+        7,
+        17,
+        21,
+        36,
+        43,
+        53,
+        63
+      ]
+    },
+    {
+      "draw_date": "8/23/2022",
+      "matches": 0,
+      "sovereign_seven": [
+        1,
+        7,
+        10,
+        15,
+        19,
+        25,
+        52
+      ]
+    },
+    {
+      "draw_date": "8/26/2022",
+      "matches": 2,
+      "sovereign_seven": [
+        16,
+        23,
+        28,
+        30,
+        38,
+        51,
+        57
       ]
     }
   ]
