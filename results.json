@@ -492,5 +492,83 @@
       39,
       48
     ]
+  },
+  {
+    "draw_date": "2/21/2020",
+    "matches": 0,
+    "sovereign_seven": [
+      12,
+      17,
+      27,
+      31,
+      39,
+      48,
+      53
+    ]
+  },
+  {
+    "draw_date": "2/25/2020",
+    "matches": 1,
+    "sovereign_seven": [
+      9,
+      17,
+      27,
+      31,
+      37,
+      48,
+      53
+    ]
+  },
+  {
+    "draw_date": "2/28/2020",
+    "matches": 0,
+    "sovereign_seven": [
+      4,
+      6,
+      12,
+      17,
+      31,
+      39,
+      53
+    ]
+  },
+  {
+    "draw_date": "3/3/2020",
+    "matches": 0,
+    "sovereign_seven": [
+      14,
+      17,
+      30,
+      31,
+      39,
+      48,
+      60
+    ]
+  },
+  {
+    "draw_date": "3/6/2020",
+    "matches": 0,
+    "sovereign_seven": [
+      4,
+      9,
+      12,
+      17,
+      31,
+      39,
+      53
+    ]
+  },
+  {
+    "draw_date": "3/10/2020",
+    "matches": 2,
+    "sovereign_seven": [
+      12,
+      14,
+      17,
+      23,
+      31,
+      48,
+      56
+    ]
   }
 ]
