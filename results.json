@@ -1,33 +1,7 @@
 {
-  "grand_total_matches": 120,
-  "grand_total_draws": 239,
+  "grand_total_matches": 124,
+  "grand_total_draws": 241,
   "recent_history": [
-    {
-      "draw_date": "8/3/2021",
-      "matches": 1,
-      "sovereign_seven": [
-        7,
-        10,
-        17,
-        19,
-        43,
-        44,
-        53
-      ]
-    },
-    {
-      "draw_date": "8/6/2021",
-      "matches": 0,
-      "sovereign_seven": [
-        3,
-        12,
-        15,
-        25,
-        26,
-        50,
-        64
-      ]
-    },
     {
       "draw_date": "8/10/2021",
       "matches": 0,
@@ -649,6 +623,32 @@
         48,
         50,
         53,
+        55
+      ]
+    },
+    {
+      "draw_date": "1/25/2022",
+      "matches": 1,
+      "sovereign_seven": [
+        6,
+        17,
+        34,
+        37,
+        44,
+        58,
+        59
+      ]
+    },
+    {
+      "draw_date": "1/28/2022",
+      "matches": 3,
+      "sovereign_seven": [
+        3,
+        10,
+        15,
+        24,
+        25,
+        27,
         55
       ]
     }
