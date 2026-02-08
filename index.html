@@ -87,33 +87,37 @@
     let ticketsClaimed = 0;
 
     async function updateMarket() {
+        console.log("Attempting to sync with Sovereign Backend...");
         try {
-            const res = await fetch(`${VM_IP}/status`, { headers: HEADERS });
+            const res = await fetch(`${VM_IP}/status`, { 
+                headers: HEADERS,
+                mode: 'cors' // Explicitly set CORS mode
+            });
+            
+            if (!res.ok) throw new Error(`Server responded with ${res.status}`);
+            
             const s = await res.json();
+            console.log("Data Received:", s); // Look at your F12 console for this!
             
             document.getElementById('jackpot-est').innerText = s.live_jackpot || "N/A";
             document.getElementById('annual-expectancy').innerText = s.annual_expectancy || "$75.1M";
             
-            // Personal Share Logic: (Your Claims / Total Roster) * Annual Target
+            // Share Calculation
             const annualNum = 75175241;
             const totalTickets = s.total || 467544;
             const share = (ticketsClaimed / totalTickets) * annualNum;
             document.getElementById('personal-share').innerText = `$${share.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-
+    
+            // Pulse Logic
             const rawJp = s.live_jackpot ? parseInt(s.live_jackpot.replace(/[^0-9]/g, "")) : 0;
             const pulse = document.getElementById('system-pulse');
-            
-            if (rawJp > 400000000) {
-                pulse.innerText = "HIGH PRESSURE";
-                pulse.style.color = "red";
-            } else if (rawJp > 200000000) {
-                pulse.innerText = "OPTIMAL";
-                pulse.style.color = "#00ff41";
-            } else {
-                pulse.innerText = "STABLE";
-                pulse.style.color = "#00ccff";
-            }
-        } catch (e) { console.log("Market Error", e); }
+            pulse.innerText = rawJp > 400000000 ? "HIGH PRESSURE" : (rawJp > 200000000 ? "OPTIMAL" : "STABLE");
+            pulse.style.color = rawJp > 400000000 ? "red" : (rawJp > 200000000 ? "#00ff41" : "#00ccff");
+    
+        } catch (e) { 
+            console.error("SYNC ERROR:", e);
+            document.getElementById('jackpot-est').innerText = "OFFLINE";
+        }
     }
     
     function switchTab(tab) {
