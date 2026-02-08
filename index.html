@@ -14,21 +14,25 @@
         .stat-label { display:block; color: #555; font-size: 0.6rem; }
 
         #tabs { display: flex; background: #000; border-bottom: 1px solid var(--neon); position: sticky; top: 60px; z-index: 1000; }
-        .tab-btn { flex: 1; padding: 15px; text-align: center; border: none; background: none; color: var(--dim); font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+        .tab-btn { flex: 1; padding: 15px; text-align: center; border: none; background: none; color: var(--dim); font-weight: bold; cursor: pointer; font-size: 0.7rem; }
         .tab-btn.active { color: var(--neon); border-bottom: 3px solid var(--neon); }
 
-        #controls { position: sticky; top: 110px; background: #111; padding: 12px; border-bottom: 1px solid #333; display: flex; justify-content: space-around; font-size: 0.7rem; z-index: 999; }
+        #controls { position: sticky; top: 110px; background: #111; padding: 12px; border-bottom: 1px solid #333; display: flex; flex-direction: column; gap: 10px; z-index: 999; }
+        .search-container { display: flex; gap: 10px; }
+        #ticket-search { flex: 1; background: #000; border: 1px solid var(--dim); color: var(--neon); padding: 8px; font-family: inherit; }
+        
         .row { height: 75px; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+        .ticket-id { font-size: 0.6rem; color: #444; margin-right: 10px; }
         .claimed { opacity: 0.2; text-decoration: line-through; filter: grayscale(1); pointer-events: none; }
         .claim-btn { background: var(--neon); color: #000; border: none; padding: 10px 16px; font-weight: bold; cursor: pointer; }
         
-        #audit-log { padding: 20px; display: none; }
+        #audit-log, #contact-view { padding: 20px; display: none; }
         .audit-entry { border: 1px solid var(--dim); padding: 10px; margin-bottom: 10px; font-size: 0.8rem; border-left: 5px solid var(--dim); }
-        .audit-entry.JACKPOT { border-color: var(--neon); border-left: 5px solid gold; color: white; background: #003300; }
-        .audit-entry.TIER_2 { border-color: #00ccff; border-left: 5px solid #00ccff; }
+        
+        .contact-card { background: #111; border: 1px solid var(--dim); padding: 20px; line-height: 1.6; }
+        .email-link { color: var(--neon); font-weight: bold; text-decoration: none; border-bottom: 1px dashed var(--neon); }
 
         #footer-counter { position: fixed; bottom: 0; width: 100%; background: var(--neon); color: #000; text-align: center; font-size: 0.8rem; font-weight: bold; padding: 8px 0; z-index: 1001; }
-        #border-warning { color: red; text-align: center; margin-top: 100px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -39,11 +43,7 @@
         <div style="display: flex; justify-content: space-around; text-align: center;">
             <div style="flex: 1;">
                 <span class="stat-label">LIVE BOUNTY</span>
-                <span id="jackpot-est" style="color: gold; font-weight: bold; font-size: 0.9rem;">FETCHING...</span>
-            </div>
-            <div class="stat-box">
-                <span class="stat-label">ANNUAL TARGET</span>
-                <span id="annual-expectancy" style="color: var(--neon); font-weight: bold; font-size: 0.9rem;">$75.1M</span>
+                <span id="jackpot-est" style="color: gold; font-weight: bold; font-size: 0.9rem;">$323 Million</span>
             </div>
             <div class="stat-box">
                 <span class="stat-label">MY EQUITY (+EV)</span>
@@ -51,20 +51,26 @@
             </div>
             <div class="stat-box">
                 <span class="stat-label">PULSE</span>
-                <span id="system-pulse" style="color: #00ccff; font-weight: bold; font-size: 0.9rem;">STABLE</span>
+                <span id="system-pulse" style="color: #00ff41; font-weight: bold; font-size: 0.9rem;">OPTIMAL (+EV)</span>
             </div>
         </div>
     </div>
     
     <div id="tabs">
-        <button class="tab-btn active" onclick="switchTab('roster')">TICKET ROSTER</button>
-        <button class="tab-btn" onclick="switchTab('audit')">INDUSTRIAL AUDIT</button>
+        <button class="tab-btn active" onclick="switchTab('roster')">ROSTER</button>
+        <button class="tab-btn" onclick="switchTab('audit')">AUDIT</button>
+        <button class="tab-btn" onclick="switchTab('contact')">CONTACT</button>
     </div>
 
     <div id="roster-view">
         <div id="controls">
-            <label><input type="checkbox" id="filter-available" onchange="render()"> ONLY AVAILABLE</label>
-            <label><input type="checkbox" id="shuffle-mode"> SNOWBALL SHUFFLE</label>
+            <div class="search-container">
+                <input type="text" id="ticket-search" placeholder="Search numbers (e.g. 34 41)..." oninput="render()">
+            </div>
+            <div style="display: flex; justify-content: space-around; font-size: 0.65rem;">
+                <label><input type="checkbox" id="filter-available" onchange="render()"> ONLY AVAILABLE</label>
+                <span>TOTAL SEATS: 467,544</span>
+            </div>
         </div>
         <div id="scroll-list"></div>
         <div id="loading" style="text-align:center; padding:20px; color:#444;">SYNCING...</div>
@@ -72,6 +78,18 @@
 
     <div id="audit-log">
         <div id="audit-list">SYNCING HISTORICAL LOGS...</div>
+    </div>
+
+    <div id="contact-view">
+        <div class="contact-card">
+            <h3>INDUSTRIAL REMOVAL REQUEST</h3>
+            <p>To remove claimed tickets from the active industrial roster for your local script, please reach out via encrypted channel:</p>
+            <p>EMAIL: <a href="mailto:jeremiahjcrouse@gmail.com" class="email-link">jeremiahjcrouse@gmail.com</a></p>
+            <p style="font-size: 0.7rem; color: #666; margin-top: 20px;">
+                RE: REMOVAL [TICKET_ID]<br>
+                Please include the Ticket ID shown in the small gray text next to the numbers.
+            </p>
+        </div>
     </div>
 
     <div id="footer-counter">CONNECTING...</div>
@@ -83,118 +101,58 @@
     let rosterCache = []; 
     let offset = 0;
     let loading = false;
-    let borderBlocked = false;
-    
-    // PERSISTENCE: Initialize claims from Browser Local Storage
     let ticketsClaimed = parseInt(localStorage.getItem('sovereign_claims')) || 0;
 
     async function updateMarket() {
         try {
             const res = await fetch(`${VM_IP}/status`, { headers: HEADERS });
             const s = await res.json();
-            
             const jpDisplay = s.live_jackpot || "$323 Million";
             document.getElementById('jackpot-est').innerText = jpDisplay;
             
-            // --- THE PRAXIS "HARD TRUTH" MATH ---
-            // 1. Convert string bounty to raw integer
             const rawJp = parseInt(jpDisplay.replace(/[^0-9]/g, "")) * 1000000;
+            const equityPerTicket = (rawJp / 90) / (s.total || 467544);
             
-            // 2. The 1/90th Temporal Probability Slice (The Gap Average)
-            const drawValue = rawJp / 90; 
-            
-            // 3. The 1/467,544th Equity Slice (Individual Ticket Share)
-            const totalTickets = s.total || 467544;
-            const equityPerTicket = drawValue / totalTickets; // ~$7.67
-            
-            // 4. Calculate Personal Equity Capture using PERSISTED count
-            const myTotalEquity = ticketsClaimed * equityPerTicket;
-            
-            // Update UI
-            document.getElementById('personal-share').innerText = `$${myTotalEquity.toFixed(2)}`;
-            document.getElementById('personal-share').title = `Equity: $${equityPerTicket.toFixed(2)} per ticket`;
-            document.getElementById('annual-expectancy').innerText = s.annual_expectancy || "$75.1M";
-    
-            // Pulse Logic
-            const pulse = document.getElementById('system-pulse');
-            if (rawJp > 400000000) {
-                pulse.innerText = "HIGH PRESSURE";
-                pulse.style.color = "red";
-            } else {
-                pulse.innerText = "OPTIMAL (+EV)";
-                pulse.style.color = "#00ff41";
-            }
-        } catch (e) { console.log("Market Sync Error", e); }
+            document.getElementById('personal-share').innerText = `$${(ticketsClaimed * equityPerTicket).toFixed(2)}`;
+        } catch (e) {}
     }
     
     function switchTab(tab) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('roster-view').style.display = 'none';
+        document.getElementById('audit-log').style.display = 'none';
+        document.getElementById('contact-view').style.display = 'none';
+
         if (tab === 'roster') {
             document.getElementById('roster-view').style.display = 'block';
-            document.getElementById('audit-log').style.display = 'none';
             document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
-        } else {
-            document.getElementById('roster-view').style.display = 'none';
+        } else if (tab === 'audit') {
             document.getElementById('audit-log').style.display = 'block';
             document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
             loadAudit();
+        } else {
+            document.getElementById('contact-view').style.display = 'block';
+            document.querySelector('.tab-btn:nth-child(3)').classList.add('active');
         }
-    }
-
-    async function loadAudit() {
-        try {
-            const res = await fetch(`${VM_IP}/audit`, { headers: HEADERS });
-            const data = await res.json();
-            const container = document.getElementById('audit-list');
-            container.innerHTML = "";
-            data.history.reverse().forEach((row, i) => {
-                if (row[0] === "Date") return;
-                const div = document.createElement('div');
-                div.className = `audit-entry ${row[1]}`;
-                div.innerHTML = `<div>[${row[0]}] <b>${row[1]}</b></div><div>${row[2]} | ${row[3]}</div>`;
-                container.appendChild(div);
-            });
-        } catch (e) { document.getElementById('audit-list').innerText = "AUDIT OFFLINE"; }
-    }
-
-    async function updateStatus() {
-        if(borderBlocked) return;
-        try {
-            const res = await fetch(`${VM_IP}/status`, { headers: HEADERS });
-            const s = await res.json();
-            document.getElementById('footer-counter').innerText = `AVAIL: ${s.remaining.toLocaleString()} / TOTAL: ${s.total.toLocaleString()} | COST: ${s.roster_cost}`;
-        } catch (e) {}
-    }
-
-    async function loadBatch() {
-        if (loading || borderBlocked) return;
-        loading = true;
-        try {
-            const res = await fetch(`${VM_IP}/more?offset=${offset}`, { headers: HEADERS });
-            if (res.status === 403) {
-                borderBlocked = true;
-                document.getElementById('roster-view').innerHTML = `<div id="border-warning"><h1>🛑 BORDER PROTECTION</h1><p>ACCESS RESTRICTED TO TEXAS RESIDENTS ONLY.</p></div>`;
-                return;
-            }
-            const data = await res.json();
-            if (data.length > 0) {
-                rosterCache.push(...data);
-                offset += 100;
-                render();
-            }
-        } catch (e) {}
-        loading = false;
     }
 
     function render() {
         const list = document.getElementById('scroll-list');
         const showAvail = document.getElementById('filter-available').checked;
+        const searchQuery = document.getElementById('ticket-search').value.trim();
         list.innerHTML = "";
+
         rosterCache.forEach(t => {
             if (showAvail && t.claimed) return;
+            if (searchQuery && !t.numbers.includes(searchQuery)) return;
+
             const div = document.createElement('div');
             div.className = 'row' + (t.claimed ? ' claimed' : '');
-            div.innerHTML = `<span>⭐ ${t.numbers}</span>
+            div.innerHTML = `
+                <div>
+                    <span class="ticket-id">ID:${t.id.toString().padStart(6, '0')}</span>
+                    <span>⭐ ${t.numbers}</span>
+                </div>
                 <button class="claim-btn" ${t.claimed ? 'disabled' : ''} onclick="claim(${t.id})">
                     ${t.claimed ? 'TAKEN' : 'CLAIM'}
                 </button>`;
@@ -210,20 +168,29 @@
                 body: JSON.stringify({ id: id })
             });
             if (res.ok) {
-                // 1. Update local count
                 ticketsClaimed++;
-                
-                // 2. Persist to browser memory
                 localStorage.setItem('sovereign_claims', ticketsClaimed);
-                
                 const idx = rosterCache.findIndex(t => t.id === id);
                 if (idx !== -1) rosterCache[idx].claimed = true;
-                
                 render();
-                updateStatus();
-                updateMarket(); // Recalculate equity immediately
+                updateMarket();
             }
-        } catch (e) { alert("CLAIM FAILED: Check connection."); }
+        } catch (e) { alert("CLAIM FAILED"); }
+    }
+
+    async function loadBatch() {
+        if (loading) return;
+        loading = true;
+        try {
+            const res = await fetch(`${VM_IP}/more?offset=${offset}`, { headers: HEADERS });
+            const data = await res.json();
+            if (data.length > 0) {
+                rosterCache.push(...data);
+                offset += 100;
+                render();
+            }
+        } catch (e) {}
+        loading = false;
     }
 
     window.onscroll = () => {
@@ -231,14 +198,8 @@
             (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1500) loadBatch();
     };
 
-    // Initial Execution
     updateMarket();
-    updateStatus();
     loadBatch();
-    
-    // Intervals
-    setInterval(updateMarket, 60000);
-    setInterval(updateStatus, 30000);
 </script>
 </body>
 </html>
