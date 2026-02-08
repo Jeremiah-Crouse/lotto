@@ -111,8 +111,21 @@
         try {
             const res = await fetch(`${VM_IP}/status`, { headers: HEADERS });
             const s = await res.json();
+            
+            // 1. Update the Jackpot Box
             document.getElementById('jackpot-est').innerText = s.live_jackpot || "$323 Million";
-        } catch (e) {}
+            
+            // 2. Update the Footer (This is what's missing)
+            const footer = document.getElementById('footer-counter');
+            footer.innerText = `CONNECTED | SEATS: ${s.total.toLocaleString()} | REMAINING: ${s.remaining.toLocaleString()}`;
+            footer.style.background = "var(--neon)"; // Keep it green
+            footer.style.color = "#000";
+            
+        } catch (e) {
+            console.error("Market Update Error:", e);
+            document.getElementById('footer-counter').innerText = "OFFLINE - CHECK NGROK";
+            document.getElementById('footer-counter').style.background = "#ff0041"; // Red for alert
+        }
     }
     
     function switchTab(tab) {
