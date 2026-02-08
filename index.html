@@ -7,6 +7,7 @@
     <style>
         :root { --neon: #00ff41; --bg: #0a0a0a; --dim: #004411; }
         body { margin: 0; background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; overflow-x: hidden; }
+        
         #header { position: sticky; top: 0; height: 60px; background: #000; border-bottom: 2px solid var(--neon); display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 1000; }
         
         #market-stats { padding: 10px; background: #000; border-bottom: 1px solid #222; font-size: 0.7rem; color: #888; line-height: 1.4; }
@@ -19,17 +20,17 @@
 
         #controls { position: sticky; top: 110px; background: #111; padding: 12px; border-bottom: 1px solid #333; display: flex; flex-direction: column; gap: 10px; z-index: 999; }
         .search-container { display: flex; gap: 10px; }
-        #ticket-search { flex: 1; background: #000; border: 1px solid var(--dim); color: var(--neon); padding: 8px; font-family: inherit; }
+        #ticket-search { flex: 1; background: #000; border: 1px solid var(--dim); color: var(--neon); padding: 12px; font-family: inherit; font-size: 1rem; }
         
-        .row { height: 90px; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+        .row { height: 95px; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
         
-        /* INDUSTRIAL ID STYLING */
-        .ticket-id { font-size: 1.2rem; color: #cccccc; font-weight: 900; margin-right: 12px; letter-spacing: 1px; }
+        /* HIGH VISIBILITY ID STYLING */
+        .ticket-id { font-size: 1.3rem; color: #eeeeee; font-weight: 900; margin-right: 12px; letter-spacing: 1px; text-shadow: 0 0 5px rgba(0,0,0,0.5); }
         .ticket-numbers { font-size: 1rem; color: var(--neon); }
         
-        .claimed { opacity: 0.5; filter: saturate(0.3); }
-        .claim-btn { background: var(--neon); color: #000; border: none; padding: 10px 16px; font-weight: bold; cursor: pointer; min-width: 80px; }
-        .copy-btn { background: #333; color: #fff; border: 1px solid #555; padding: 8px 12px; font-size: 0.7rem; cursor: pointer; font-weight: bold; margin-left: 10px; }
+        .claimed { opacity: 0.5; filter: saturate(0.2); }
+        .claim-btn { background: var(--neon); color: #000; border: none; padding: 12px 18px; font-weight: bold; cursor: pointer; min-width: 90px; border-radius: 2px; }
+        .copy-btn { background: #444; color: #fff; border: 1px solid #666; padding: 10px 14px; font-size: 0.75rem; cursor: pointer; font-weight: bold; margin-left: 10px; border-radius: 2px; }
         .copy-btn:active { background: var(--neon); color: #000; }
         
         #audit-log, #contact-view { padding: 20px; display: none; }
@@ -37,6 +38,7 @@
         .email-link { color: var(--neon); font-weight: bold; text-decoration: none; border-bottom: 1px dashed var(--neon); }
 
         #footer-counter { position: fixed; bottom: 0; width: 100%; background: var(--neon); color: #000; text-align: center; font-size: 0.8rem; font-weight: bold; padding: 8px 0; z-index: 1001; }
+        #loading-indicator { text-align: center; padding: 20px; color: #444; font-size: 0.8rem; display: none; }
     </style>
 </head>
 <body>
@@ -69,7 +71,7 @@
     <div id="roster-view">
         <div id="controls">
             <div class="search-container">
-                <input type="text" id="ticket-search" placeholder="Search numbers..." oninput="render()">
+                <input type="text" id="ticket-search" placeholder="Search numbers (e.g. 34 41)..." oninput="handleSearch(this.value)">
             </div>
             <div style="display: flex; justify-content: space-around; font-size: 0.65rem;">
                 <label><input type="checkbox" id="filter-available" onchange="render()"> ONLY AVAILABLE</label>
@@ -77,7 +79,7 @@
             </div>
         </div>
         <div id="scroll-list"></div>
-        <div id="loading" style="text-align:center; padding:20px; color:#444;">SYNCING...</div>
+        <div id="loading-indicator">QUERYING INDUSTRIAL DATABASE...</div>
     </div>
 
     <div id="audit-log">
@@ -89,10 +91,11 @@
             <h3>INDUSTRIAL REMOVAL REQUEST</h3>
             <p>To request a status reset (unclaim) for tickets in the industrial roster, please email:</p>
             <p>EMAIL: <a href="mailto:jeremiahjcrouse@gmail.com" class="email-link">jeremiahjcrouse@gmail.com</a></p>
-            <p style="font-size: 0.7rem; color: #888; margin-top: 20px; border-top: 1px solid #333; padding-top: 10px;">
-                INSTRUCTIONS:<br>
-                1. Click "COPY ID" on the taken ticket.<br>
-                2. Paste ID into the subject line: <b>RE: RESET [ID]</b>
+            <p style="font-size: 0.75rem; color: #888; margin-top: 20px; border-top: 1px solid #333; padding-top: 15px;">
+                <b>INSTRUCTIONS:</b><br>
+                1. Find the ticket using the search bar.<br>
+                2. Click <b>"COPY ID"</b> on the taken ticket.<br>
+                3. Paste ID into the subject line: <b>RE: RESET [ID]</b>
             </p>
         </div>
     </div>
@@ -106,6 +109,7 @@
     let rosterCache = []; 
     let offset = 0;
     let loading = false;
+    let currentSearch = "";
     let ticketsClaimed = parseInt(localStorage.getItem('sovereign_claims')) || 0;
 
     async function updateMarket() {
@@ -131,14 +135,12 @@
         } else if (tab === 'audit') {
             document.getElementById('audit-log').style.display = 'block';
             document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
-            loadAudit();
         } else {
             document.getElementById('contact-view').style.display = 'block';
             document.querySelector('.tab-btn:nth-child(3)').classList.add('active');
         }
     }
 
-    // New Industrial Copy Helper
     function copyToClipboard(text, btn) {
         navigator.clipboard.writeText(text).then(() => {
             const oldText = btn.innerText;
@@ -147,15 +149,26 @@
         });
     }
 
+    // SERVER-SIDE SEARCH LOGIC
+    let searchTimeout;
+    function handleSearch(val) {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(async () => {
+            currentSearch = val.trim();
+            offset = 0;
+            rosterCache = [];
+            render(); 
+            await loadBatch();
+        }, 400); // Small debounce to avoid hitting VM every keystroke
+    }
+
     function render() {
         const list = document.getElementById('scroll-list');
         const showAvail = document.getElementById('filter-available').checked;
-        const searchQuery = document.getElementById('ticket-search').value.trim();
         list.innerHTML = "";
 
         rosterCache.forEach(t => {
             if (showAvail && t.claimed) return;
-            if (searchQuery && !t.numbers.includes(searchQuery)) return;
 
             const div = document.createElement('div');
             div.className = 'row' + (t.claimed ? ' claimed' : '');
@@ -163,8 +176,8 @@
             
             div.innerHTML = `
                 <div>
-                    <span class="ticket-id">#${displayId}</span>
-                    <span class="ticket-numbers">⭐ ${t.numbers}</span>
+                    <div class="ticket-id">#${displayId}</div>
+                    <div class="ticket-numbers">⭐ ${t.numbers}</div>
                 </div>
                 <div style="display: flex; align-items: center;">
                     ${t.claimed ? `<button class="copy-btn" onclick="copyToClipboard('${displayId}', this)">COPY ID</button>` : ''}
@@ -199,21 +212,29 @@
     async function loadBatch() {
         if (loading) return;
         loading = true;
+        document.getElementById('loading-indicator').style.display = 'block';
+
         try {
-            const res = await fetch(`${VM_IP}/more?offset=${offset}`, { headers: HEADERS });
+            const queryParam = currentSearch ? `&q=${encodeURIComponent(currentSearch)}` : '';
+            const res = await fetch(`${VM_IP}/more?offset=${offset}${queryParam}`, { headers: HEADERS });
             const data = await res.json();
+            
             if (data.length > 0) {
                 rosterCache.push(...data);
                 offset += 100;
                 render();
             }
-        } catch (e) {}
+        } catch (e) { console.error("Sync Error", e); }
+        
         loading = false;
+        document.getElementById('loading-indicator').style.display = 'none';
     }
 
     window.onscroll = () => {
         if (document.getElementById('roster-view').style.display !== 'none' && 
-            (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1500) loadBatch();
+            (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
+            loadBatch();
+        }
     };
 
     updateMarket();
