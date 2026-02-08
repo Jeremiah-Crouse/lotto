@@ -21,14 +21,18 @@
         .search-container { display: flex; gap: 10px; }
         #ticket-search { flex: 1; background: #000; border: 1px solid var(--dim); color: var(--neon); padding: 8px; font-family: inherit; }
         
-        .row { height: 75px; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
-        .ticket-id { font-size: 0.6rem; color: #444; margin-right: 10px; }
-        .claimed { opacity: 0.2; text-decoration: line-through; filter: grayscale(1); pointer-events: none; }
-        .claim-btn { background: var(--neon); color: #000; border: none; padding: 10px 16px; font-weight: bold; cursor: pointer; }
+        .row { height: 90px; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+        
+        /* INDUSTRIAL ID STYLING */
+        .ticket-id { font-size: 1.2rem; color: #cccccc; font-weight: 900; margin-right: 12px; letter-spacing: 1px; }
+        .ticket-numbers { font-size: 1rem; color: var(--neon); }
+        
+        .claimed { opacity: 0.5; filter: saturate(0.3); }
+        .claim-btn { background: var(--neon); color: #000; border: none; padding: 10px 16px; font-weight: bold; cursor: pointer; min-width: 80px; }
+        .copy-btn { background: #333; color: #fff; border: 1px solid #555; padding: 8px 12px; font-size: 0.7rem; cursor: pointer; font-weight: bold; margin-left: 10px; }
+        .copy-btn:active { background: var(--neon); color: #000; }
         
         #audit-log, #contact-view { padding: 20px; display: none; }
-        .audit-entry { border: 1px solid var(--dim); padding: 10px; margin-bottom: 10px; font-size: 0.8rem; border-left: 5px solid var(--dim); }
-        
         .contact-card { background: #111; border: 1px solid var(--dim); padding: 20px; line-height: 1.6; }
         .email-link { color: var(--neon); font-weight: bold; text-decoration: none; border-bottom: 1px dashed var(--neon); }
 
@@ -65,7 +69,7 @@
     <div id="roster-view">
         <div id="controls">
             <div class="search-container">
-                <input type="text" id="ticket-search" placeholder="Search numbers (e.g. 34 41)..." oninput="render()">
+                <input type="text" id="ticket-search" placeholder="Search numbers..." oninput="render()">
             </div>
             <div style="display: flex; justify-content: space-around; font-size: 0.65rem;">
                 <label><input type="checkbox" id="filter-available" onchange="render()"> ONLY AVAILABLE</label>
@@ -83,11 +87,12 @@
     <div id="contact-view">
         <div class="contact-card">
             <h3>INDUSTRIAL REMOVAL REQUEST</h3>
-            <p>To remove claimed tickets from the active industrial roster for your local script, please reach out via encrypted channel:</p>
+            <p>To request a status reset (unclaim) for tickets in the industrial roster, please email:</p>
             <p>EMAIL: <a href="mailto:jeremiahjcrouse@gmail.com" class="email-link">jeremiahjcrouse@gmail.com</a></p>
-            <p style="font-size: 0.7rem; color: #666; margin-top: 20px;">
-                RE: REMOVAL [TICKET_ID]<br>
-                Please include the Ticket ID shown in the small gray text next to the numbers.
+            <p style="font-size: 0.7rem; color: #888; margin-top: 20px; border-top: 1px solid #333; padding-top: 10px;">
+                INSTRUCTIONS:<br>
+                1. Click "COPY ID" on the taken ticket.<br>
+                2. Paste ID into the subject line: <b>RE: RESET [ID]</b>
             </p>
         </div>
     </div>
@@ -109,10 +114,8 @@
             const s = await res.json();
             const jpDisplay = s.live_jackpot || "$323 Million";
             document.getElementById('jackpot-est').innerText = jpDisplay;
-            
             const rawJp = parseInt(jpDisplay.replace(/[^0-9]/g, "")) * 1000000;
             const equityPerTicket = (rawJp / 90) / (s.total || 467544);
-            
             document.getElementById('personal-share').innerText = `$${(ticketsClaimed * equityPerTicket).toFixed(2)}`;
         } catch (e) {}
     }
@@ -122,7 +125,6 @@
         document.getElementById('roster-view').style.display = 'none';
         document.getElementById('audit-log').style.display = 'none';
         document.getElementById('contact-view').style.display = 'none';
-
         if (tab === 'roster') {
             document.getElementById('roster-view').style.display = 'block';
             document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
@@ -134,6 +136,15 @@
             document.getElementById('contact-view').style.display = 'block';
             document.querySelector('.tab-btn:nth-child(3)').classList.add('active');
         }
+    }
+
+    // New Industrial Copy Helper
+    function copyToClipboard(text, btn) {
+        navigator.clipboard.writeText(text).then(() => {
+            const oldText = btn.innerText;
+            btn.innerText = "COPIED!";
+            setTimeout(() => { btn.innerText = oldText; }, 2000);
+        });
     }
 
     function render() {
@@ -148,14 +159,19 @@
 
             const div = document.createElement('div');
             div.className = 'row' + (t.claimed ? ' claimed' : '');
+            const displayId = t.id.toString().padStart(6, '0');
+            
             div.innerHTML = `
                 <div>
-                    <span class="ticket-id">ID:${t.id.toString().padStart(6, '0')}</span>
-                    <span>⭐ ${t.numbers}</span>
+                    <span class="ticket-id">#${displayId}</span>
+                    <span class="ticket-numbers">⭐ ${t.numbers}</span>
                 </div>
-                <button class="claim-btn" ${t.claimed ? 'disabled' : ''} onclick="claim(${t.id})">
-                    ${t.claimed ? 'TAKEN' : 'CLAIM'}
-                </button>`;
+                <div style="display: flex; align-items: center;">
+                    ${t.claimed ? `<button class="copy-btn" onclick="copyToClipboard('${displayId}', this)">COPY ID</button>` : ''}
+                    <button class="claim-btn" style="margin-left:10px" ${t.claimed ? 'disabled' : ''} onclick="claim(${t.id})">
+                        ${t.claimed ? 'TAKEN' : 'CLAIM'}
+                    </button>
+                </div>`;
             list.appendChild(div);
         });
     }
@@ -171,8 +187,10 @@
                 ticketsClaimed++;
                 localStorage.setItem('sovereign_claims', ticketsClaimed);
                 const idx = rosterCache.findIndex(t => t.id === id);
-                if (idx !== -1) rosterCache[idx].claimed = true;
-                render();
+                if (idx !== -1) {
+                    rosterCache[idx].claimed = true;
+                    render();
+                }
                 updateMarket();
             }
         } catch (e) { alert("CLAIM FAILED"); }
