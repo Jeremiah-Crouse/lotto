@@ -3,111 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sovereign 24: Texas Advice</title>
+    <title>Sovereign 24: Texas Industrial</title>
     <style>
-        body { margin: 0; background: #0a0a0a; color: #00ff41; font-family: 'Courier New', Courier, monospace; }
-        #header { position: sticky; top: 0; height: 60px; padding: 10px; border-bottom: 2px solid #00ff41; background: #000; text-align: center; z-index: 100; }
-        #scroll-list { padding: 10px; }
-        .row { 
-            height: 80px; border-bottom: 1px solid #1a1a1a; 
-            display: flex; align-items: center; justify-content: space-between; 
-            padding: 0 20px; box-sizing: border-box;
-        }
-        .claimed { color: #444 !important; text-decoration: line-through; pointer-events: none; opacity: 0.5; }
-        .claim-btn { 
-            background: #00ff41; color: #000; border: none; padding: 10px 15px; 
-            font-weight: bold; cursor: pointer; border-radius: 4px;
-        }
-        #loading { text-align: center; padding: 20px; color: #888; font-size: 0.8rem; }
+        :root { --neon-green: #00ff41; --dark-bg: #0a0a0a; }
+        body { margin: 0; background: var(--dark-bg); color: var(--neon-green); font-family: 'Courier New', Courier, monospace; }
+        #header { position: sticky; top: 0; height: 60px; background: #000; border-bottom: 2px solid var(--neon-green); display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 1000; }
+        #controls { position: sticky; top: 62px; background: #111; padding: 10px; border-bottom: 1px solid #333; display: flex; justify-content: space-around; font-size: 0.75rem; z-index: 999; }
+        #scroll-list { padding-bottom: 80px; }
+        .row { height: 70px; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; }
+        .claimed { opacity: 0.3; text-decoration: line-through; }
+        .claim-btn { background: var(--neon-green); color: #000; border: none; padding: 8px 12px; font-weight: bold; cursor: pointer; }
+        #footer-counter { position: fixed; bottom: 0; width: 100%; background: var(--neon-green); color: #000; text-align: center; font-size: 0.85rem; font-weight: bold; padding: 8px 0; z-index: 1001; }
+        .tx-flair { margin-right: 8px; }
     </style>
 </head>
 <body>
-    <div id="header">SOVEREIGN 24: TX ONLY</div>
+
+    <div id="header">SOVEREIGN 24 🇨🇱 TEXAS ONLY</div>
+
+    <div id="controls">
+        <label><input type="checkbox" id="filter-available"> SHOW ONLY AVAILABLE</label>
+        <label><input type="checkbox" id="shuffle-mode" checked> SNOWBALL SHUFFLE</label>
+    </div>
+
     <div id="scroll-list"></div>
-    <div id="loading">Connecting to Sovereign Tunnel...</div>
+    <div id="loading" style="text-align:center; padding:20px; color:#555;">KICKING THE TIRES...</div>
+
+    <div id="footer-counter">CONNECTING TO SOVEREIGN...</div>
 
 <script>
-    // --- SETTINGS ---
-    const VM_IP = "https://eileen-copious-magnetooptically.ngrok-free.dev"; // e.g., https://a1b2-c3d4.ngrok-free.app
-    const HEADERS = {
-        "Content-Type": "application/json",
-        "ngrok-skip-browser-warning": "true" // THIS IS THE FIX
-    };
+    const VM_IP = "https://eileen-copious-magnetooptically.ngrok-free.dev"; 
+    const HEADERS = { "ngrok-skip-browser-warning": "true", "Content-Type": "application/json" };
 
+    let rosterCache = []; // This holds every ticket loaded so far
     let offset = 0;
     let loading = false;
-    const listElement = document.getElementById('scroll-list');
+    let totalRoster = 680064;
+
+    async function updateGlobalStatus() {
+        try {
+            const res = await fetch(`${VM_IP}/status`, { headers: HEADERS });
+            const status = await res.json();
+            document.getElementById('footer-counter').innerText = 
+                `AVAILABLE: ${status.remaining.toLocaleString()} / TOTAL: ${status.total.toLocaleString()} | LOADED: ${rosterCache.length}`;
+        } catch (e) { console.error("Status Sync Failed"); }
+    }
+
+    // The Fisher-Yates Shuffle - Full array randomization
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
 
     async function loadBatch() {
         if (loading) return;
         loading = true;
+        
         try {
-            console.log(`Fetching batch at offset ${offset}...`);
-            const res = await fetch(`${VM_IP}/more?offset=${offset}`, {
-                method: 'GET',
-                headers: HEADERS
-            });
+            const res = await fetch(`${VM_IP}/more?offset=${offset}`, { method: 'GET', headers: HEADERS });
+            const newTickets = await res.json();
             
-            if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-            
-            const tickets = await res.json();
-            
-            if (tickets.length === 0) {
-                document.getElementById('loading').innerText = "END OF ACTIVE ROSTER";
-                return;
+            if (newTickets.length === 0) return;
+
+            // 1. Add new tickets to the master cache
+            rosterCache.push(...newTickets);
+            offset += 100;
+
+            // 2. If shuffle is on, scramble EVERYTHING in the cache
+            if (document.getElementById('shuffle-mode').checked) {
+                shuffle(rosterCache);
             }
 
-            tickets.forEach(ticket => {
-                const div = document.createElement('div');
-                div.className = 'row' + (ticket.claimed ? ' claimed' : '');
-                div.innerHTML = `
-                    <span>${ticket.numbers}</span>
-                    <button class="claim-btn" onclick="claim(${ticket.id}, this)">${ticket.claimed ? 'TAKEN' : 'CLAIM'}</button>
-                `;
-                listElement.appendChild(div);
-            });
-
-            offset += tickets.length;
-            document.getElementById('loading').innerText = `Loaded ${offset} tickets. Scroll for more...`;
-        } catch (e) {
-            console.error("Critical Load Error:", e);
-            document.getElementById('loading').innerText = "TUNNEL BLOCKED OR OFFLINE";
-        }
+            // 3. Re-render the entire list
+            renderList();
+            updateGlobalStatus();
+        } catch (e) { console.error(e); }
         loading = false;
     }
 
-    async function claim(id, btnElement) {
-        if (!confirm("Claim this ticket? (TX Residents Only)")) return;
+    function renderList() {
+        const listContainer = document.getElementById('scroll-list');
+        const showOnlyAvailable = document.getElementById('filter-available').checked;
         
-        try {
-            const res = await fetch(`${VM_IP}/claim`, {
-                method: 'POST',
-                headers: HEADERS,
-                body: JSON.stringify({ id: id })
-            });
-            
-            if (res.ok) {
-                btnElement.parentElement.classList.add('claimed');
-                btnElement.innerText = "TAKEN";
-                btnElement.disabled = true;
-            } else {
-                alert("Claim rejected by Sovereign Node.");
-            }
-        } catch (e) {
-            console.error("Claim Error:", e);
-            alert("Connection lost during claim.");
-        }
+        // Clear the screen entirely
+        listContainer.innerHTML = "";
+
+        rosterCache.forEach(t => {
+            if (showOnlyAvailable && t.claimed) return;
+
+            const div = document.createElement('div');
+            div.className = 'row' + (t.claimed ? ' claimed' : '');
+            div.innerHTML = `
+                <span class="ticket-nums">🇨🇱 ${t.numbers}</span>
+                <button class="claim-btn" ${t.claimed ? 'disabled' : ''} onclick="claim(${t.id}, this)">
+                    ${t.claimed ? 'TAKEN' : 'CLAIM'}
+                </button>
+            `;
+            listContainer.appendChild(div);
+        });
     }
 
-    // Infinite Scroll logic
+    async function claim(id, btn) {
+        if (!confirm("TX Resident? Claiming ticket...")) return;
+        try {
+            const res = await fetch(`${VM_IP}/claim`, { method: 'POST', headers: HEADERS, body: JSON.stringify({ id: id }) });
+            if (res.ok) {
+                // Update local cache so it stays greyed out after reshuffles
+                const ticket = rosterCache.find(t => t.id === id);
+                if (ticket) ticket.claimed = 1;
+                renderList();
+                updateGlobalStatus();
+            }
+        } catch (e) { alert("Network error."); }
+    }
+
+    document.getElementById('filter-available').onchange = renderList;
+    document.getElementById('shuffle-mode').onchange = () => {
+        if (document.getElementById('shuffle-mode').checked) shuffle(rosterCache);
+        renderList();
+    };
+
     window.onscroll = function() {
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 800) {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1500) {
             loadBatch();
         }
     };
 
-    // Kickoff
+    updateGlobalStatus();
     loadBatch();
+    setInterval(updateGlobalStatus, 30000);
 </script>
 </body>
 </html>
