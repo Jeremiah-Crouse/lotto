@@ -13,35 +13,47 @@
             display: flex; align-items: center; justify-content: space-between; 
             padding: 0 20px; box-sizing: border-box;
         }
-        .claimed { color: #444; text-decoration: line-through; pointer-events: none; opacity: 0.5; }
+        .claimed { color: #444 !important; text-decoration: line-through; pointer-events: none; opacity: 0.5; }
         .claim-btn { 
             background: #00ff41; color: #000; border: none; padding: 10px 15px; 
             font-weight: bold; cursor: pointer; border-radius: 4px;
         }
-        #loading { text-align: center; padding: 20px; color: #888; }
+        #loading { text-align: center; padding: 20px; color: #888; font-size: 0.8rem; }
     </style>
 </head>
 <body>
     <div id="header">SOVEREIGN 24: TX ONLY</div>
     <div id="scroll-list"></div>
-    <div id="loading">Scanning Machine Signature...</div>
+    <div id="loading">Connecting to Sovereign Tunnel...</div>
 
 <script>
-    const VM_IP = "https://eileen-copious-magnetooptically.ngrok-free.dev:8000"; // REPLACE WITH YOUR ACTUAL VM IP
+    // --- SETTINGS ---
+    const VM_IP = "https://eileen-copious-magnetooptically.ngrok-free.dev"; // e.g., https://a1b2-c3d4.ngrok-free.app
+    const HEADERS = {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true" // THIS IS THE FIX
+    };
+
     let offset = 0;
     let loading = false;
     const listElement = document.getElementById('scroll-list');
 
-    // 1. Fetch data from the VM /more endpoint
     async function loadBatch() {
         if (loading) return;
         loading = true;
         try {
-            const res = await fetch(`${VM_IP}/more?offset=${offset}`);
+            console.log(`Fetching batch at offset ${offset}...`);
+            const res = await fetch(`${VM_IP}/more?offset=${offset}`, {
+                method: 'GET',
+                headers: HEADERS
+            });
+            
+            if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+            
             const tickets = await res.json();
             
             if (tickets.length === 0) {
-                document.getElementById('loading').innerText = "END OF ROSTER";
+                document.getElementById('loading').innerText = "END OF ACTIVE ROSTER";
                 return;
             }
 
@@ -56,41 +68,45 @@
             });
 
             offset += tickets.length;
+            document.getElementById('loading').innerText = `Loaded ${offset} tickets. Scroll for more...`;
         } catch (e) {
-            console.error("Connection failed", e);
-            document.getElementById('loading').innerText = "SERVER OFFLINE";
+            console.error("Critical Load Error:", e);
+            document.getElementById('loading').innerText = "TUNNEL BLOCKED OR OFFLINE";
         }
         loading = false;
     }
 
-    // 2. Claim Logic (Talks to the VM /claim endpoint)
     async function claim(id, btnElement) {
         if (!confirm("Claim this ticket? (TX Residents Only)")) return;
         
         try {
             const res = await fetch(`${VM_IP}/claim`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: HEADERS,
                 body: JSON.stringify({ id: id })
             });
+            
             if (res.ok) {
                 btnElement.parentElement.classList.add('claimed');
                 btnElement.innerText = "TAKEN";
                 btnElement.disabled = true;
+            } else {
+                alert("Claim rejected by Sovereign Node.");
             }
         } catch (e) {
-            alert("Claim failed. Check server connection.");
+            console.error("Claim Error:", e);
+            alert("Connection lost during claim.");
         }
     }
 
-    // 3. Infinite Scroll Listener
+    // Infinite Scroll logic
     window.onscroll = function() {
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 800) {
             loadBatch();
         }
     };
 
-    // Initial Load
+    // Kickoff
     loadBatch();
 </script>
 </body>
