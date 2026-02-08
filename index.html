@@ -9,6 +9,10 @@
         body { margin: 0; background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; overflow-x: hidden; }
         #header { position: sticky; top: 0; height: 60px; background: #000; border-bottom: 2px solid var(--neon); display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 1000; }
         
+        #market-stats { padding: 10px; background: #000; border-bottom: 1px solid #222; font-size: 0.7rem; color: #888; line-height: 1.4; }
+        .stat-box { border-left: 1px solid #222; padding-left: 10px; flex: 1; }
+        .stat-label { display:block; color: #555; font-size: 0.6rem; }
+
         #tabs { display: flex; background: #000; border-bottom: 1px solid var(--neon); position: sticky; top: 60px; z-index: 1000; }
         .tab-btn { flex: 1; padding: 15px; text-align: center; border: none; background: none; color: var(--dim); font-weight: bold; cursor: pointer; font-size: 0.8rem; }
         .tab-btn.active { color: var(--neon); border-bottom: 3px solid var(--neon); }
@@ -31,18 +35,22 @@
 
     <div id="header">SOVEREIGN 24 ⭐ TEXAS INDUSTRIAL</div>
 
-    <div id="market-stats" style="padding: 10px; background: #000; border-bottom: 1px solid #222; font-size: 0.7rem; color: #888; line-height: 1.4;">
+    <div id="market-stats">
         <div style="display: flex; justify-content: space-around; text-align: center;">
-            <div>
-                <span style="display:block; color: #555;">LIVE BOUNTY</span>
-                <span id="jackpot-est" style="color: gold; font-weight: bold; font-size: 0.9rem;">$0M</span>
+            <div style="flex: 1;">
+                <span class="stat-label">LIVE BOUNTY</span>
+                <span id="jackpot-est" style="color: gold; font-weight: bold; font-size: 0.9rem;">FETCHING...</span>
             </div>
-            <div style="border-left: 1px solid #222; padding-left: 10px;">
-                <span style="display:block; color: #555;">ANNUAL PROJECTION</span>
+            <div class="stat-box">
+                <span class="stat-label">ANNUAL TARGET</span>
                 <span id="annual-expectancy" style="color: var(--neon); font-weight: bold; font-size: 0.9rem;">$75.1M</span>
             </div>
-            <div style="border-left: 1px solid #222; padding-left: 10px;">
-                <span style="display:block; color: #555;">PULSE</span>
+            <div class="stat-box">
+                <span class="stat-label">MY SHARE (EST)</span>
+                <span id="personal-share" style="color: #ff00ff; font-weight: bold; font-size: 0.9rem;">$0.00</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-label">PULSE</span>
                 <span id="system-pulse" style="color: #00ccff; font-weight: bold; font-size: 0.9rem;">STABLE</span>
             </div>
         </div>
@@ -55,7 +63,7 @@
 
     <div id="roster-view">
         <div id="controls">
-            <label><input type="checkbox" id="filter-available"> ONLY AVAILABLE</label>
+            <label><input type="checkbox" id="filter-available" onchange="render()"> ONLY AVAILABLE</label>
             <label><input type="checkbox" id="shuffle-mode"> SNOWBALL SHUFFLE</label>
         </div>
         <div id="scroll-list"></div>
@@ -76,36 +84,36 @@
     let offset = 0;
     let loading = false;
     let borderBlocked = false;
+    let ticketsClaimed = 0;
 
     async function updateMarket() {
         try {
             const res = await fetch(`${VM_IP}/status`, { headers: HEADERS });
             const s = await res.json();
             
-            // 1. Set Real Live Jackpot from API
-            document.getElementById('jackpot-est').innerText = s.live_jackpot || "PENDING";
-            
-            // 2. Set Expectancy from Server
+            document.getElementById('jackpot-est').innerText = s.live_jackpot || "N/A";
             document.getElementById('annual-expectancy').innerText = s.annual_expectancy || "$75.1M";
             
-            // 3. Logic: If the jackpot is over $400M, the Pulse goes to CRITICAL/HIGH
-            // We parse the string "$492,000,000" into a number for the check
+            // Personal Share Logic: (Your Claims / Total Roster) * Annual Target
+            const annualNum = 75175241;
+            const totalTickets = s.total || 467544;
+            const share = (ticketsClaimed / totalTickets) * annualNum;
+            document.getElementById('personal-share').innerText = `$${share.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
             const rawJp = s.live_jackpot ? parseInt(s.live_jackpot.replace(/[^0-9]/g, "")) : 0;
+            const pulse = document.getElementById('system-pulse');
             
             if (rawJp > 400000000) {
-                document.getElementById('system-pulse').innerText = "HIGH PRESSURE";
-                document.getElementById('system-pulse').style.color = "red";
+                pulse.innerText = "HIGH PRESSURE";
+                pulse.style.color = "red";
             } else if (rawJp > 200000000) {
-                document.getElementById('system-pulse').innerText = "OPTIMAL";
-                document.getElementById('system-pulse').style.color = "#00ff41";
+                pulse.innerText = "OPTIMAL";
+                pulse.style.color = "#00ff41";
             } else {
-                document.getElementById('system-pulse').innerText = "STABLE";
-                document.getElementById('system-pulse').style.color = "#00ccff";
+                pulse.innerText = "STABLE";
+                pulse.style.color = "#00ccff";
             }
-    
-        } catch (e) {
-            console.log("Market Sync Error", e);
-        }
+        } catch (e) { console.log("Market Error", e); }
     }
     
     function switchTab(tab) {
@@ -128,17 +136,14 @@
             const data = await res.json();
             const container = document.getElementById('audit-list');
             container.innerHTML = "";
-            
             data.history.reverse().forEach((row, i) => {
-                if (i === 0 && row[0] === "Date") return; // Skip CSV header
+                if (row[0] === "Date") return;
                 const div = document.createElement('div');
                 div.className = `audit-entry ${row[1]}`;
-                div.innerHTML = `<div>[${row[0]}] <b>${row[1]}</b></div><div>${row[2]}</div>`;
+                div.innerHTML = `<div>[${row[0]}] <b>${row[1]}</b></div><div>${row[2]} | ${row[3]}</div>`;
                 container.appendChild(div);
             });
-        } catch (e) {
-            document.getElementById('audit-list').innerText = "AUDIT OFFLINE";
-        }
+        } catch (e) { document.getElementById('audit-list').innerText = "AUDIT OFFLINE"; }
     }
 
     async function updateStatus() {
@@ -149,9 +154,6 @@
             document.getElementById('footer-counter').innerText = `AVAIL: ${s.remaining.toLocaleString()} / TOTAL: ${s.total.toLocaleString()} | COST: ${s.roster_cost}`;
         } catch (e) {}
     }
-
-    // [Maintain loadBatch, render, claim, shuffle functions from previous script...]
-    // (Injecting the existing loadBatch/render logic here to ensure it keeps working)
 
     async function loadBatch() {
         if (loading || borderBlocked) return;
@@ -189,13 +191,36 @@
         });
     }
 
+    async function claim(id) {
+        try {
+            const res = await fetch(`${VM_IP}/claim`, {
+                method: 'POST',
+                headers: HEADERS,
+                body: JSON.stringify({ id: id })
+            });
+            if (res.ok) {
+                ticketsClaimed++;
+                const idx = rosterCache.findIndex(t => t.id === id);
+                if (idx !== -1) rosterCache[idx].claimed = true;
+                render();
+                updateStatus();
+                updateMarket(); // Update personal share
+            }
+        } catch (e) { alert("CLAIM FAILED: Check connection."); }
+    }
+
     window.onscroll = () => {
         if (document.getElementById('roster-view').style.display !== 'none' && 
             (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1500) loadBatch();
     };
 
+    // Initial Execution
+    updateMarket();
     updateStatus();
     loadBatch();
+    
+    // Intervals
+    setInterval(updateMarket, 60000);
     setInterval(updateStatus, 30000);
 </script>
 </body>
