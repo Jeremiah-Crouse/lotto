@@ -31,9 +31,21 @@
 
     <div id="header">SOVEREIGN 24 ⭐ TEXAS INDUSTRIAL</div>
 
-    <div id="market-stats" style="font-size: 0.6rem; color: #888; margin-top: 5px;">
-        EST. JACKPOT: <span id="jackpot-est">$0M</span> | 
-        PULSE: <span id="system-pulse">STABLE</span>
+    <div id="market-stats" style="padding: 10px; background: #000; border-bottom: 1px solid #222; font-size: 0.7rem; color: #888; line-height: 1.4;">
+        <div style="display: flex; justify-content: space-around; text-align: center;">
+            <div>
+                <span style="display:block; color: #555;">LIVE BOUNTY</span>
+                <span id="jackpot-est" style="color: gold; font-weight: bold; font-size: 0.9rem;">$0M</span>
+            </div>
+            <div style="border-left: 1px solid #222; padding-left: 10px;">
+                <span style="display:block; color: #555;">ANNUAL PROJECTION</span>
+                <span id="annual-expectancy" style="color: var(--neon); font-weight: bold; font-size: 0.9rem;">$75.1M</span>
+            </div>
+            <div style="border-left: 1px solid #222; padding-left: 10px;">
+                <span style="display:block; color: #555;">PULSE</span>
+                <span id="system-pulse" style="color: #00ccff; font-weight: bold; font-size: 0.9rem;">STABLE</span>
+            </div>
+        </div>
     </div>
     
     <div id="tabs">
@@ -66,22 +78,35 @@
     let borderBlocked = false;
 
     async function updateMarket() {
-    try {
-        const res = await fetch(`${VM_IP}/status`, { headers: HEADERS });
-        const s = await res.json();
-        
-        // Dynamic Jackpot Estimation (Simplified)
-        const total = s.total || 0;
-        const estJackpot = (total > 0) ? Math.floor(Math.random() * 300) + 50 : 0; 
-        document.getElementById('jackpot-est').innerText = `$${estJackpot}M`;
-        
-        // System Pulse logic based on your 103-draw average
-        // (This would ideally pull from your audit log)
-        document.getElementById('system-pulse').innerText = "HIGH EXPECTANCY";
-    } catch (e) {}
+        try {
+            const res = await fetch(`${VM_IP}/status`, { headers: HEADERS });
+            const s = await res.json();
+            
+            // 1. Set Real Live Jackpot from API
+            document.getElementById('jackpot-est').innerText = s.live_jackpot || "PENDING";
+            
+            // 2. Set Expectancy from Server
+            document.getElementById('annual-expectancy').innerText = s.annual_expectancy || "$75.1M";
+            
+            // 3. Logic: If the jackpot is over $400M, the Pulse goes to CRITICAL/HIGH
+            // We parse the string "$492,000,000" into a number for the check
+            const rawJp = s.live_jackpot ? parseInt(s.live_jackpot.replace(/[^0-9]/g, "")) : 0;
+            
+            if (rawJp > 400000000) {
+                document.getElementById('system-pulse').innerText = "HIGH PRESSURE";
+                document.getElementById('system-pulse').style.color = "red";
+            } else if (rawJp > 200000000) {
+                document.getElementById('system-pulse').innerText = "OPTIMAL";
+                document.getElementById('system-pulse').style.color = "#00ff41";
+            } else {
+                document.getElementById('system-pulse').innerText = "STABLE";
+                document.getElementById('system-pulse').style.color = "#00ccff";
+            }
+    
+        } catch (e) {
+            console.log("Market Sync Error", e);
+        }
     }
-    setInterval(updateMarket, 60000);
-    updateMarket();
     
     function switchTab(tab) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
