@@ -5,20 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sovereign 24: Texas Industrial</title>
     <style>
-        :root { --neon-green: #00ff41; --dark-bg: #0a0a0a; }
-        body { margin: 0; background: var(--dark-bg); color: var(--neon-green); font-family: 'Courier New', monospace; overflow-x: hidden; }
-        #header { position: sticky; top: 0; height: 60px; background: #000; border-bottom: 2px solid var(--neon-green); display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 1000; }
-        #controls { position: sticky; top: 62px; background: #111; padding: 12px; border-bottom: 1px solid #333; display: flex; justify-content: space-around; font-size: 0.75rem; z-index: 999; }
+        :root { --neon: #00ff41; --bg: #0a0a0a; }
+        body { margin: 0; background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; }
+        #header { position: sticky; top: 0; height: 60px; background: #000; border-bottom: 2px solid var(--neon); display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 1000; }
+        #controls { position: sticky; top: 62px; background: #111; padding: 12px; border-bottom: 1px solid #333; display: flex; justify-content: space-around; font-size: 0.7rem; z-index: 999; }
         .row { height: 75px; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
-        .claimed { opacity: 0.2; text-decoration: line-through; pointer-events: none; }
-        .claim-btn { background: var(--neon-green); color: #000; border: none; padding: 10px 16px; font-weight: bold; cursor: pointer; }
-        #footer-counter { position: fixed; bottom: 0; width: 100%; background: var(--neon-green); color: #000; text-align: center; font-size: 0.85rem; font-weight: bold; padding: 10px 0; z-index: 1001; }
-        #error-overlay { color: red; text-align: center; padding: 50px 20px; }
+        .claimed { opacity: 0.2; text-decoration: line-through; filter: grayscale(1); pointer-events: none; }
+        .claim-btn { background: var(--neon); color: #000; border: none; padding: 10px 16px; font-weight: bold; cursor: pointer; }
+        #footer-counter { position: fixed; bottom: 0; width: 100%; background: var(--neon); color: #000; text-align: center; font-size: 0.8rem; font-weight: bold; padding: 8px 0; z-index: 1001; }
+        #border-warning { color: red; text-align: center; margin-top: 100px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="header">SOVEREIGN 24 🎖️ TEXAS ROSTER</div>
+    <div id="header">SOVEREIGN 24 ⭐ TEXAS INDUSTRIAL</div>
 
     <div id="controls">
         <label><input type="checkbox" id="filter-available"> ONLY AVAILABLE</label>
@@ -26,8 +26,8 @@
     </div>
 
     <div id="scroll-list"></div>
-    <div id="loading" style="text-align:center; padding:20px; color:#444;">INITIALIZING...</div>
-    <div id="footer-counter">CONNECTING TO VM...</div>
+    <div id="loading" style="text-align:center; padding:20px; color:#444;">SYNCING...</div>
+    <div id="footer-counter">CONNECTING...</div>
 
 <script>
     const VM_IP = "https://eileen-copious-magnetooptically.ngrok-free.dev"; 
@@ -36,14 +36,15 @@
     let rosterCache = []; 
     let offset = 0;
     let loading = false;
+    let borderBlocked = false;
 
-    async function updateGlobalStatus() {
+    async function updateStatus() {
+        if(borderBlocked) return;
         try {
             const res = await fetch(`${VM_IP}/status`, { headers: HEADERS });
-            const status = await res.json();
-            document.getElementById('footer-counter').innerText = 
-                `AVAIL: ${status.remaining.toLocaleString()} / TOTAL: ${status.total.toLocaleString()} | LOADED: ${rosterCache.length}`;
-        } catch (e) { document.getElementById('footer-counter').innerText = "VM OFFLINE"; }
+            const s = await res.json();
+            document.getElementById('footer-counter').innerText = `AVAIL: ${s.remaining.toLocaleString()} / TOTAL: ${s.total.toLocaleString()} | CACHE: ${rosterCache.length}`;
+        } catch (e) {}
     }
 
     function shuffle(array) {
@@ -54,39 +55,37 @@
     }
 
     async function loadBatch() {
-        if (loading) return;
+        if (loading || borderBlocked) return;
         loading = true;
-        
         try {
-            const res = await fetch(`${VM_IP}/more?offset=${offset}`, { method: 'GET', headers: HEADERS });
-            const data = await res.json();
+            const res = await fetch(`${VM_IP}/more?offset=${offset}`, { headers: HEADERS });
             
-            if (data.error) {
-                document.getElementById('scroll-list').innerHTML = `<div id="error-overlay"><h1>🛑 ACCESS DENIED</h1><p>${data.error}</p></div>`;
+            if (res.status === 403) {
+                borderBlocked = true;
+                document.getElementById('scroll-list').innerHTML = `<div id="border-warning"><h1>🛑 BORDER PROTECTION</h1><p>ACCESS RESTRICTED TO TEXAS RESIDENTS ONLY.</p></div>`;
                 document.getElementById('loading').style.display = 'none';
                 return;
             }
 
+            const data = await res.json();
             if (data.length > 0) {
                 rosterCache.push(...data);
                 offset += 100;
                 if (document.getElementById('shuffle-mode').checked) shuffle(rosterCache);
-                renderList();
+                render();
             }
-        } catch (e) { console.error(e); }
+        } catch (e) {}
         loading = false;
     }
 
-    function renderList() {
+    function render() {
         const list = document.getElementById('scroll-list');
-        const showOnlyAvail = document.getElementById('filter-available').checked;
+        const showAvail = document.getElementById('filter-available').checked;
         list.innerHTML = "";
-
         rosterCache.forEach(t => {
-            if (showOnlyAvail && t.claimed) return;
+            if (showAvail && t.claimed) return;
             const div = document.createElement('div');
             div.className = 'row' + (t.claimed ? ' claimed' : '');
-            // Proper Texas Spirit
             div.innerHTML = `<span>⭐ ${t.numbers}</span>
                 <button class="claim-btn" ${t.claimed ? 'disabled' : ''} onclick="claim(${t.id})">
                     ${t.claimed ? 'TAKEN' : 'CLAIM'}
@@ -96,29 +95,29 @@
     }
 
     async function claim(id) {
-        if (!confirm("Confirming Texas-based ticket purchase?")) return;
+        if (!confirm("Confirming Texas Purchase?")) return;
         const res = await fetch(`${VM_IP}/claim`, { method: 'POST', headers: HEADERS, body: JSON.stringify({ id: id }) });
         if (res.ok) {
             const t = rosterCache.find(x => x.id === id);
-            if (t) t.claimed = 1;
-            renderList();
-            updateGlobalStatus();
+            if (t) t.claimed = true;
+            render();
+            updateStatus();
         }
     }
 
-    document.getElementById('filter-available').onchange = renderList;
+    document.getElementById('filter-available').onchange = render;
     document.getElementById('shuffle-mode').onchange = () => {
         if (document.getElementById('shuffle-mode').checked) shuffle(rosterCache);
-        renderList();
+        render();
     };
 
     window.onscroll = () => {
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1500) loadBatch();
     };
 
-    updateGlobalStatus();
+    updateStatus();
     loadBatch();
-    setInterval(updateGlobalStatus, 30000);
+    setInterval(updateStatus, 30000);
 </script>
 </body>
 </html>
