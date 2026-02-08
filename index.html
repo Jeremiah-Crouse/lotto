@@ -5,73 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sovereign 24: Texas Advice</title>
     <style>
-        body { margin: 0; background: #0a0a0a; color: #00ff41; font-family: 'Courier New', Courier, monospace; overflow: hidden; }
-        #header { height: 60px; padding: 10px; border-bottom: 2px solid #00ff41; background: #000; text-align: center; }
-        #scroll-container { height: calc(100vh - 80px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
-        .spacer { width: 100%; } /* This mimics the height of 42,000 items */
-        .viewport { position: relative; width: 100%; }
+        body { margin: 0; background: #0a0a0a; color: #00ff41; font-family: 'Courier New', Courier, monospace; }
+        #header { position: sticky; top: 0; height: 60px; padding: 10px; border-bottom: 2px solid #00ff41; background: #000; text-align: center; z-index: 100; }
+        #scroll-list { padding: 10px; }
         .row { 
-            position: absolute; width: 100%; height: 80px; 
-            border-bottom: 1px solid #1a1a1a; display: flex; 
-            align-items: center; justify-content: space-between; padding: 0 20px; box-sizing: border-box;
+            height: 80px; border-bottom: 1px solid #1a1a1a; 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 0 20px; box-sizing: border-box;
         }
-        .claimed { color: #444; text-decoration: line-through; pointer-events: none; }
+        .claimed { color: #444; text-decoration: line-through; pointer-events: none; opacity: 0.5; }
         .claim-btn { 
             background: #00ff41; color: #000; border: none; padding: 10px 15px; 
             font-weight: bold; cursor: pointer; border-radius: 4px;
         }
-        .claimed .claim-btn { background: #222; color: #444; }
+        #loading { text-align: center; padding: 20px; color: #888; }
     </style>
 </head>
 <body>
     <div id="header">SOVEREIGN 24: TX ONLY</div>
-    <div id="scroll-container">
-        <div class="viewport" id="viewport">
-            <div class="spacer" id="spacer"></div>
-        </div>
-    </div>
+    <div id="scroll-list"></div>
+    <div id="loading">Scanning Machine Signature...</div>
 
 <script>
-    const VM_IP = "http://136.119.126.194:8000"; // Replace with your actual IP
-    const ROW_HEIGHT = 80;
-    const VISIBLE_COUNT = 20;
-    let roster = [];
+    const VM_IP = "http://136.119.126.194:8000"; // REPLACE WITH YOUR ACTUAL VM IP
+    let offset = 0;
+    let loading = false;
+    const listElement = document.getElementById('scroll-list');
 
-    const container = document.getElementById('scroll-container');
-    const viewport = document.getElementById('viewport');
-    const spacer = document.getElementById('spacer');
+    // 1. Fetch data from the VM /more endpoint
+    async function loadBatch() {
+        if (loading) return;
+        loading = true;
+        try {
+            const res = await fetch(`${VM_IP}/more?offset=${offset}`);
+            const tickets = await res.json();
+            
+            if (tickets.length === 0) {
+                document.getElementById('loading').innerText = "END OF ROSTER";
+                return;
+            }
 
-    // Load data from your results.json (pushed by VM)
-    async function loadData() {
-        const res = await fetch('results.json?t=' + Date.now());
-        roster = await res.json();
-        spacer.style.height = (roster.length * ROW_HEIGHT) + "px";
-        render();
-    }
+            tickets.forEach(ticket => {
+                const div = document.createElement('div');
+                div.className = 'row' + (ticket.claimed ? ' claimed' : '');
+                div.innerHTML = `
+                    <span>${ticket.numbers}</span>
+                    <button class="claim-btn" onclick="claim(${ticket.id}, this)">${ticket.claimed ? 'TAKEN' : 'CLAIM'}</button>
+                `;
+                listElement.appendChild(div);
+            });
 
-    function render() {
-        const scrollTop = container.scrollTop;
-        const startIndex = Math.floor(scrollTop / ROW_HEIGHT);
-        const endIndex = Math.min(roster.length - 1, startIndex + VISIBLE_COUNT);
-
-        viewport.innerHTML = '';
-        viewport.appendChild(spacer);
-
-        for (let i = startIndex; i <= endIndex; i++) {
-            const item = roster[i];
-            const div = document.createElement('div');
-            div.className = 'row' + (item.claimed ? ' claimed' : '');
-            div.style.top = (i * ROW_HEIGHT) + "px";
-            div.innerHTML = `
-                <span>${item.numbers}</span>
-                <button class="claim-btn" onclick="claim(${item.id})">${item.claimed ? 'TAKEN' : 'CLAIM'}</button>
-            `;
-            viewport.appendChild(div);
+            offset += tickets.length;
+        } catch (e) {
+            console.error("Connection failed", e);
+            document.getElementById('loading').innerText = "SERVER OFFLINE";
         }
+        loading = false;
     }
 
-    async function claim(id) {
-        if (!confirm("Claim this line? (TX Residents Only)")) return;
+    // 2. Claim Logic (Talks to the VM /claim endpoint)
+    async function claim(id, btnElement) {
+        if (!confirm("Claim this ticket? (TX Residents Only)")) return;
         
         try {
             const res = await fetch(`${VM_IP}/claim`, {
@@ -79,15 +73,25 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: id })
             });
-            if (res.ok) alert("Line Claimed! Wait for sync...");
-            loadData();
+            if (res.ok) {
+                btnElement.parentElement.classList.add('claimed');
+                btnElement.innerText = "TAKEN";
+                btnElement.disabled = true;
+            }
         } catch (e) {
-            alert("Connection to Sovereign VM failed.");
+            alert("Claim failed. Check server connection.");
         }
     }
 
-    container.addEventListener('scroll', render);
-    loadData();
+    // 3. Infinite Scroll Listener
+    window.onscroll = function() {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+            loadBatch();
+        }
+    };
+
+    // Initial Load
+    loadBatch();
 </script>
 </body>
 </html>
