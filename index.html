@@ -46,7 +46,7 @@
                 <span id="annual-expectancy" style="color: var(--neon); font-weight: bold; font-size: 0.9rem;">$75.1M</span>
             </div>
             <div class="stat-box">
-                <span class="stat-label">MY SHARE (EST)</span>
+                <span class="stat-label">MY EQUITY (+EV)</span>
                 <span id="personal-share" style="color: #ff00ff; font-weight: bold; font-size: 0.9rem;">$0.00</span>
             </div>
             <div class="stat-box">
@@ -84,7 +84,9 @@
     let offset = 0;
     let loading = false;
     let borderBlocked = false;
-    let ticketsClaimed = 0;
+    
+    // PERSISTENCE: Initialize claims from Browser Local Storage
+    let ticketsClaimed = parseInt(localStorage.getItem('sovereign_claims')) || 0;
 
     async function updateMarket() {
         try {
@@ -95,22 +97,23 @@
             document.getElementById('jackpot-est').innerText = jpDisplay;
             
             // --- THE PRAXIS "HARD TRUTH" MATH ---
-            // 1. Clean the jackpot string to a raw number
+            // 1. Convert string bounty to raw integer
             const rawJp = parseInt(jpDisplay.replace(/[^0-9]/g, "")) * 1000000;
             
-            // 2. Apply the 1/90th Probability Slice (Temporal Reality)
+            // 2. The 1/90th Temporal Probability Slice (The Gap Average)
             const drawValue = rawJp / 90; 
             
-            // 3. Apply the 1/467,544th Equity Slice (Roster Dilution)
+            // 3. The 1/467,544th Equity Slice (Individual Ticket Share)
             const totalTickets = s.total || 467544;
-            const equityPerTicket = drawValue / totalTickets; // Should be approx $7.67
+            const equityPerTicket = drawValue / totalTickets; // ~$7.67
             
-            // 4. Calculate Personal Equity Capture
+            // 4. Calculate Personal Equity Capture using PERSISTED count
             const myTotalEquity = ticketsClaimed * equityPerTicket;
             
-            // Update the UI
+            // Update UI
             document.getElementById('personal-share').innerText = `$${myTotalEquity.toFixed(2)}`;
             document.getElementById('personal-share').title = `Equity: $${equityPerTicket.toFixed(2)} per ticket`;
+            document.getElementById('annual-expectancy').innerText = s.annual_expectancy || "$75.1M";
     
             // Pulse Logic
             const pulse = document.getElementById('system-pulse');
@@ -207,12 +210,18 @@
                 body: JSON.stringify({ id: id })
             });
             if (res.ok) {
+                // 1. Update local count
                 ticketsClaimed++;
+                
+                // 2. Persist to browser memory
+                localStorage.setItem('sovereign_claims', ticketsClaimed);
+                
                 const idx = rosterCache.findIndex(t => t.id === id);
                 if (idx !== -1) rosterCache[idx].claimed = true;
+                
                 render();
                 updateStatus();
-                updateMarket(); // Update personal share
+                updateMarket(); // Recalculate equity immediately
             }
         } catch (e) { alert("CLAIM FAILED: Check connection."); }
     }
