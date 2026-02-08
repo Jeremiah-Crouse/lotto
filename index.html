@@ -2,54 +2,92 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Praxis Oracle | Grand Truth</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sovereign 24: Texas Advice</title>
     <style>
-        body { font-family: 'Courier New', Courier, monospace; background: #0a0a0a; color: #00ff41; padding: 20px; }
-        .container { max-width: 600px; margin: auto; }
-        .card { border: 1px solid #00ff41; padding: 15px; margin-bottom: 10px; background: #111; }
-        .hit-high { color: #fff; background: #004400; border: 1px solid #00ff41; box-shadow: 0 0 10px #00ff41; }
-        h1 { font-size: 1.2rem; text-align: center; border-bottom: 2px solid #00ff41; padding-bottom: 10px; text-shadow: 0 0 5px #00ff41; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .metric { font-size: 0.7rem; text-transform: uppercase; opacity: 0.7; display: block; }
-        .value { font-size: 1.4rem; font-weight: bold; color: #fff; }
-        .ball { display: inline-block; width: 25px; text-align: center; border-right: 1px solid #333; margin-right: 5px; }
+        body { margin: 0; background: #0a0a0a; color: #00ff41; font-family: 'Courier New', Courier, monospace; overflow: hidden; }
+        #header { height: 60px; padding: 10px; border-bottom: 2px solid #00ff41; background: #000; text-align: center; }
+        #scroll-container { height: calc(100vh - 80px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .spacer { width: 100%; } /* This mimics the height of 42,000 items */
+        .viewport { position: relative; width: 100%; }
+        .row { 
+            position: absolute; width: 100%; height: 80px; 
+            border-bottom: 1px solid #1a1a1a; display: flex; 
+            align-items: center; justify-content: space-between; padding: 0 20px; box-sizing: border-box;
+        }
+        .claimed { color: #444; text-decoration: line-through; pointer-events: none; }
+        .claim-btn { 
+            background: #00ff41; color: #000; border: none; padding: 10px 15px; 
+            font-weight: bold; cursor: pointer; border-radius: 4px;
+        }
+        .claimed .claim-btn { background: #222; color: #444; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>PRAXIS GRAND TRUTH ENGINE</h1>
-        <div id="stats" class="stat-grid"></div>
-        <div id="log">Synchronizing with PINN...</div>
+    <div id="header">SOVEREIGN 24: TX ONLY</div>
+    <div id="scroll-container">
+        <div class="viewport" id="viewport">
+            <div class="spacer" id="spacer"></div>
+        </div>
     </div>
 
-    <script>
-        async function updateDashboard() {
-            try {
-                const res = await fetch('results.json?t=' + Date.now());
-                const data = await res.json();
-                
-                const avg = (data.grand_total_matches / data.grand_total_draws).toFixed(3);
+<script>
+    const VM_IP = "http://YOUR_VM_IP:8000"; // Replace with your actual IP
+    const ROW_HEIGHT = 80;
+    const VISIBLE_COUNT = 20;
+    let roster = [];
 
-                document.getElementById('stats').innerHTML = `
-                    <div class="card"><span class="metric">Grand Avg Hits</span><span class="value">${avg}</span></div>
-                    <div class="card"><span class="metric">Total Processed</span><span class="value">${data.grand_total_draws}</span></div>
-                `;
+    const container = document.getElementById('scroll-container');
+    const viewport = document.getElementById('viewport');
+    const spacer = document.getElementById('spacer');
 
-                const logHtml = data.recent_history.slice().reverse().map(event => `
-                    <div class="card ${event.matches >= 2 ? 'hit-high' : ''}">
-                        <div style="font-size: 0.7rem; opacity: 0.7; margin-bottom: 5px;">${event.draw_date}</div>
-                        <div style="letter-spacing: 2px;">
-                            ${event.sovereign_seven.map(n => `<span class="ball">${n}</span>`).join('')}
-                        </div>
-                        <div style="text-align: right; margin-top: 5px; font-weight: bold;">MATCHES: ${event.matches}</div>
-                    </div>
-                `).join('');
-                document.getElementById('log').innerHTML = logHtml;
-            } catch (e) { console.error("Vortex Sync Failure"); }
+    // Load data from your results.json (pushed by VM)
+    async function loadData() {
+        const res = await fetch('results.json?t=' + Date.now());
+        roster = await res.json();
+        spacer.style.height = (roster.length * ROW_HEIGHT) + "px";
+        render();
+    }
+
+    function render() {
+        const scrollTop = container.scrollTop;
+        const startIndex = Math.floor(scrollTop / ROW_HEIGHT);
+        const endIndex = Math.min(roster.length - 1, startIndex + VISIBLE_COUNT);
+
+        viewport.innerHTML = '';
+        viewport.appendChild(spacer);
+
+        for (let i = startIndex; i <= endIndex; i++) {
+            const item = roster[i];
+            const div = document.createElement('div');
+            div.className = 'row' + (item.claimed ? ' claimed' : '');
+            div.style.top = (i * ROW_HEIGHT) + "px";
+            div.innerHTML = `
+                <span>${item.numbers}</span>
+                <button class="claim-btn" onclick="claim(${item.id})">${item.claimed ? 'TAKEN' : 'CLAIM'}</button>
+            `;
+            viewport.appendChild(div);
         }
-        setInterval(updateDashboard, 15000); // 15s refresh to save phone battery
-        updateDashboard();
-    </script>
+    }
+
+    async function claim(id) {
+        if (!confirm("Claim this line? (TX Residents Only)")) return;
+        
+        try {
+            const res = await fetch(`${VM_IP}/claim`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            });
+            if (res.ok) alert("Line Claimed! Wait for sync...");
+            loadData();
+        } catch (e) {
+            alert("Connection to Sovereign VM failed.");
+        }
+    }
+
+    container.addEventListener('scroll', render);
+    loadData();
+</script>
 </body>
 </html>
