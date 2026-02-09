@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sovereign 24: Texas Industrial</title>
+    <title>Sovereign 24: Confluence Industrial</title>
     <style>
-        :root { --neon: #00ff41; --bg: #0a0a0a; --dim: #004411; }
-        body { margin: 0; background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; overflow-x: hidden; padding-bottom: 50px; }
+        :root { 
+            --neon: #00ff41; --bg: #0a0a0a; --dim: #004411; 
+            --bronze: #cd7f32; --silver: #c0c0c0; --gold: #ffd700; --platinum: #e5e4e2;
+        }
+        body { margin: 0; background: var(--bg); color: var(--neon); font-family: 'Courier New', monospace; overflow-x: hidden; padding-bottom: 70px; }
         
         #header { position: sticky; top: 0; height: 60px; background: #000; border-bottom: 2px solid var(--neon); display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 1000; }
         
@@ -22,32 +25,39 @@
         .search-container { display: flex; gap: 10px; }
         #ticket-search { flex: 1; background: #000; border: 1px solid var(--dim); color: var(--neon); padding: 12px; font-family: inherit; font-size: 1rem; }
         
-        .row { height: 95px; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
-        .ticket-id { font-size: 1.3rem; color: #eeeeee; font-weight: 900; margin-right: 12px; letter-spacing: 1px; text-shadow: 0 0 5px rgba(0,0,0,0.5); }
-        .ticket-numbers { font-size: 1rem; color: var(--neon); }
-        
-        .claimed { opacity: 0.5; filter: saturate(0.2); }
-        .claim-btn { background: var(--neon); color: #000; border: none; padding: 12px 18px; font-weight: bold; cursor: pointer; min-width: 90px; border-radius: 2px; }
-        .copy-btn { background: #444; color: #fff; border: 1px solid #666; padding: 10px 14px; font-size: 0.75rem; cursor: pointer; font-weight: bold; margin-left: 10px; border-radius: 2px; }
-        .copy-btn:active { background: var(--neon); color: #000; }
-        
-        #audit-log, #contact-view { padding: 20px; display: none; }
-        .contact-card { background: #111; border: 1px solid var(--dim); padding: 20px; line-height: 1.6; }
-        .email-link { color: var(--neon); font-weight: bold; text-decoration: none; border-bottom: 1px dashed var(--neon); }
+        /* Tier Badges */
+        .tier-badge { font-size: 0.6rem; padding: 2px 6px; border-radius: 3px; font-weight: bold; margin-left: 8px; text-transform: uppercase; vertical-align: middle; }
+        .tier-1 { border: 1px solid var(--bronze); color: var(--bronze); }
+        .tier-2 { border: 1px solid var(--silver); color: var(--silver); }
+        .tier-3 { border: 1px solid var(--gold); color: var(--gold); }
+        .tier-4 { border: 1px solid var(--platinum); color: var(--platinum); box-shadow: 0 0 5px var(--platinum); }
 
-        #footer-counter { position: fixed; bottom: 0; width: 100%; background: var(--neon); color: #000; text-align: center; font-size: 0.75rem; font-weight: bold; padding: 10px 0; z-index: 1001; transition: background 0.3s; }
+        .row { height: 110px; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+        .ticket-id { font-size: 1.1rem; color: #888; font-weight: 400; margin-bottom: 4px; }
+        .ticket-numbers { font-size: 1.1rem; color: var(--neon); font-weight: bold; }
+        
+        .claimed { opacity: 0.6; }
+        .claim-btn { background: var(--neon); color: #000; border: none; padding: 12px 18px; font-weight: bold; cursor: pointer; min-width: 95px; border-radius: 2px; }
+        .unclaim-btn { background: #ff0041; color: #fff; border: none; padding: 8px 12px; font-size: 0.65rem; font-weight: bold; cursor: pointer; margin-top: 5px; width: 100%; border-radius: 2px; }
+        .copy-btn { background: #333; color: #fff; border: 1px solid #444; padding: 10px 14px; font-size: 0.75rem; cursor: pointer; font-weight: bold; margin-left: 10px; border-radius: 2px; }
+        
+        #footer-counter { position: fixed; bottom: 0; width: 100%; background: var(--neon); color: #000; text-align: center; font-size: 0.75rem; font-weight: bold; padding: 12px 0; z-index: 1001; }
         #loading-indicator { text-align: center; padding: 20px; color: #444; font-size: 0.8rem; display: none; }
+        
+        #tier-filters { display: flex; gap: 5px; justify-content: space-around; padding-bottom: 5px; }
+        .tier-filter-btn { background: #000; border: 1px solid #333; color: #666; font-size: 0.6rem; padding: 5px; flex: 1; border-radius: 3px; }
+        .tier-filter-btn.active { border-color: var(--neon); color: var(--neon); }
     </style>
 </head>
 <body>
 
-    <div id="header">SOVEREIGN 24 ⭐ TEXAS INDUSTRIAL</div>
+    <div id="header">SOVEREIGN 24 ⭐ CONFLUENCE INDUSTRIAL</div>
 
     <div id="market-stats">
         <div style="display: flex; justify-content: space-around; text-align: center;">
             <div style="flex: 1;">
                 <span class="stat-label">LIVE BOUNTY</span>
-                <span id="jackpot-est" style="color: gold; font-weight: bold; font-size: 0.9rem;">$323 Million</span>
+                <span id="jackpot-est" style="color: gold; font-weight: bold; font-size: 0.9rem;">LOADING...</span>
             </div>
             <div class="stat-box">
                 <span class="stat-label">PULSE</span>
@@ -67,34 +77,38 @@
             <div class="search-container">
                 <input type="text" id="ticket-search" placeholder="Search numbers (e.g. 34 41)..." oninput="handleSearch(this.value)">
             </div>
-            <div style="display: flex; justify-content: space-around; font-size: 0.65rem;">
+            <div id="tier-filters">
+                <button class="tier-filter-btn active" id="f-all" onclick="setTierFilter(null)">ALL</button>
+                <button class="tier-filter-btn" id="f-1" onclick="setTierFilter(1)">BRONZE</button>
+                <button class="tier-filter-btn" id="f-2" onclick="setTierFilter(2)">SILVER</button>
+                <button class="tier-filter-btn" id="f-3" onclick="setTierFilter(3)">GOLD</button>
+                <button class="tier-filter-btn" id="f-4" onclick="setTierFilter(4)">PLATINUM</button>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.65rem;">
                 <label><input type="checkbox" id="filter-available" onchange="render()"> ONLY AVAILABLE</label>
-                <span>DATABASE CAPACITY: 467,544</span>
+                <span id="tier-stat-display">CONFLUENCE: ON</span>
             </div>
         </div>
         <div id="scroll-list"></div>
-        <div id="loading-indicator">QUERYING INDUSTRIAL DATABASE...</div>
+        <div id="loading-indicator">SYNCING QUAD-TIER DATABASE...</div>
     </div>
 
-    <div id="audit-log">
+    <div id="audit-log" style="padding: 20px; display: none;">
         <div id="audit-list">SYNCING HISTORICAL LOGS...</div>
     </div>
 
-    <div id="contact-view">
+    <div id="contact-view" style="padding: 20px; display: none;">
         <div class="contact-card">
-            <h3>INDUSTRIAL REMOVAL REQUEST</h3>
-            <p>To request a status reset (unclaim) for tickets in the industrial roster, please email:</p>
+            <h3>STATUS MANAGEMENT</h3>
+            <p>If you mistakenly claimed a ticket or need a reset:</p>
             <p>EMAIL: <a href="mailto:jeremiahjcrouse@gmail.com" class="email-link">jeremiahjcrouse@gmail.com</a></p>
             <p style="font-size: 0.75rem; color: #888; margin-top: 20px; border-top: 1px solid #333; padding-top: 15px;">
-                <b>INSTRUCTIONS:</b><br>
-                1. Find the ticket using the search bar.<br>
-                2. Click <b>"COPY ID"</b> on the taken ticket.<br>
-                3. Paste ID into the subject line: <b>RE: RESET [ID]</b>
+                <b>PLATINUM OVERLAP:</b> These tickets hit across 4 different DNA strands. They represent the highest mathematical confluence in the system.
             </p>
         </div>
     </div>
 
-    <div id="footer-counter">CONNECTING TO VM...</div>
+    <div id="footer-counter">INITIALIZING VM LINK...</div>
 
 <script>
     const VM_IP = "https://eileen-copious-magnetooptically.ngrok-free.dev"; 
@@ -104,34 +118,27 @@
     let offset = 0;
     let loading = false;
     let currentSearch = "";
+    let currentTier = null;
+
+    const TIER_NAMES = { 1: 'Bronze', 2: 'Silver', 3: 'Gold', 4: 'Platinum' };
 
     async function updateMarket() {
         try {
             const res = await fetch(`${VM_IP}/status`, { headers: HEADERS });
-            if (!res.ok) throw new Error("Server Error");
             const s = await res.json();
+            document.getElementById('jackpot-est').innerText = s.jackpot || "$323 Million";
             
-            // Update UI
-            document.getElementById('jackpot-est').innerText = s.live_jackpot || "$323 Million";
-            
-            // Update Footer with Live Data
-            const footer = document.getElementById('footer-counter');
-            footer.innerText = `CONNECTED | SEATS: ${s.total?.toLocaleString()} | REMAINING: ${s.remaining?.toLocaleString()}`;
-            footer.style.background = "var(--neon)";
-            footer.style.color = "#000";
+            const total = Object.values(s.tiers).reduce((a, b) => a + b, 0);
+            document.getElementById('footer-counter').innerText = `LIVE | TIERS: P:${s.tiers.Tier_4 || 0} G:${s.tiers.Tier_3 || 0} S:${s.tiers.Tier_2 || 0} | TOTAL: ${total.toLocaleString()}`;
         } catch (e) {
-            const footer = document.getElementById('footer-counter');
-            footer.innerText = "OFFLINE - CHECK NGROK/VM";
-            footer.style.background = "#ff0041";
-            footer.style.color = "#fff";
+            document.getElementById('footer-counter').innerText = "OFFLINE - RECHECK VM";
+            document.getElementById('footer-counter').style.background = "#ff0041";
         }
     }
     
     function switchTab(tab) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('roster-view').style.display = 'none';
-        document.getElementById('audit-log').style.display = 'none';
-        document.getElementById('contact-view').style.display = 'none';
+        ['roster-view', 'audit-log', 'contact-view'].forEach(id => document.getElementById(id).style.display = 'none');
         if (tab === 'roster') {
             document.getElementById('roster-view').style.display = 'block';
             document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
@@ -144,23 +151,26 @@
         }
     }
 
-    function copyToClipboard(text, btn) {
-        navigator.clipboard.writeText(text).then(() => {
-            const oldText = btn.innerText;
-            btn.innerText = "COPIED!";
-            setTimeout(() => { btn.innerText = oldText; }, 2000);
-        });
+    function setTierFilter(tier) {
+        document.querySelectorAll('.tier-filter-btn').forEach(b => b.classList.remove('active'));
+        const btnId = tier ? `f-${tier}` : 'f-all';
+        document.getElementById(btnId).classList.add('active');
+        currentTier = tier;
+        offset = 0;
+        rosterCache = [];
+        render();
+        loadBatch();
     }
 
     let searchTimeout;
     function handleSearch(val) {
         clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(async () => {
+        searchTimeout = setTimeout(() => {
             currentSearch = val.trim();
             offset = 0;
             rosterCache = [];
             render(); 
-            await loadBatch();
+            loadBatch();
         }, 400);
     }
 
@@ -178,14 +188,14 @@
             
             div.innerHTML = `
                 <div>
-                    <div class="ticket-id">#${displayId}</div>
+                    <div class="ticket-id">#${displayId} <span class="tier-badge tier-${t.tier}">${TIER_NAMES[t.tier]}</span></div>
                     <div class="ticket-numbers">⭐ ${t.numbers}</div>
                 </div>
-                <div style="display: flex; align-items: center;">
-                    ${t.claimed ? `<button class="copy-btn" onclick="copyToClipboard('${displayId}', this)">COPY ID</button>` : ''}
-                    <button class="claim-btn" style="margin-left:10px" ${t.claimed ? 'disabled' : ''} onclick="claim(${t.id})">
+                <div style="text-align: right;">
+                    <button class="claim-btn" ${t.claimed ? 'disabled' : ''} onclick="claim(${t.id})">
                         ${t.claimed ? 'TAKEN' : 'CLAIM'}
                     </button>
+                    ${t.claimed ? `<button class="unclaim-btn" onclick="unclaim(${t.id})">RESET (UNCLAIM)</button>` : ''}
                 </div>`;
             list.appendChild(div);
         });
@@ -200,13 +210,28 @@
             });
             if (res.ok) {
                 const idx = rosterCache.findIndex(t => t.id === id);
-                if (idx !== -1) {
-                    rosterCache[idx].claimed = true;
-                    render();
-                }
+                if (idx !== -1) rosterCache[idx].claimed = true;
+                render();
                 updateMarket();
             }
         } catch (e) { alert("CLAIM FAILED"); }
+    }
+
+    async function unclaim(id) {
+        if(!confirm("Are you sure you want to unclaim this seat?")) return;
+        try {
+            const res = await fetch(`${VM_IP}/unclaim`, {
+                method: 'POST',
+                headers: HEADERS,
+                body: JSON.stringify({ id: id })
+            });
+            if (res.ok) {
+                const idx = rosterCache.findIndex(t => t.id === id);
+                if (idx !== -1) rosterCache[idx].claimed = false;
+                render();
+                updateMarket();
+            }
+        } catch (e) { alert("UNCLAIM FAILED"); }
     }
 
     async function loadBatch() {
@@ -215,8 +240,11 @@
         document.getElementById('loading-indicator').style.display = 'block';
 
         try {
-            const queryParam = currentSearch ? `&q=${encodeURIComponent(currentSearch)}` : '';
-            const res = await fetch(`${VM_IP}/more?offset=${offset}${queryParam}`, { headers: HEADERS });
+            let url = `${VM_IP}/more?offset=${offset}`;
+            if (currentSearch) url += `&q=${encodeURIComponent(currentSearch)}`;
+            if (currentTier) url += `&tier=${currentTier}`;
+            
+            const res = await fetch(url, { headers: HEADERS });
             const data = await res.json();
             
             if (data.length > 0) {
@@ -232,16 +260,13 @@
 
     window.onscroll = () => {
         if (document.getElementById('roster-view').style.display !== 'none' && 
-            (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
+            (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 800) {
             loadBatch();
         }
     };
 
-    // Initial load
     updateMarket();
     loadBatch();
-
-    // Heartbeat: Sync status every 60 seconds
     setInterval(updateMarket, 60000);
 </script>
 </body>
